@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.4
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -15,9 +15,9 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *October, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
 
 ---
 
@@ -139,7 +139,7 @@ def add_date_dimension(ds):
 ```{code-cell} ipython3
 moisture_index_lazy = xr.open_mfdataset(sorted(Path("./data/herstappe/raster/sentinel_moisture").rglob("*.tiff")), 
                                         preprocess=add_date_dimension, engine="rasterio", mask_and_scale=False,
-                                        chunks={"date": 1, "band": -1, "x": -1, "y": -1}) # parallel=True
+                                        chunks={"date": 1, "band": -1, "x": -1, "y": -1}, data_vars="all") # parallel=True
 moisture_index_lazy["moisture_index"]
 ```
 
@@ -174,11 +174,11 @@ xr.open_dataset("moisture_index_stacked.nc", engine="netcdf4")
 Storing to zarr files works on the `xarray.DataSet` level:
 
 ```{code-cell} ipython3
-moisture_index_lazy.to_zarr("moisture_index_stacked.zarr")
+moisture_index_lazy.to_zarr("moisture_index_stacked.zarr", consolidated=False)
 ```
 
 ```{code-cell} ipython3
-xr.open_dataset("moisture_index_stacked.zarr", engine="zarr")    
+xr.open_dataset("moisture_index_stacked.zarr", engine="zarr", consolidated=False)    
 ```
 
 _Clean up of these example files_
@@ -207,8 +207,8 @@ https://www.esrl.noaa.gov/psd/thredds/catalog/Datasets/ncep.reanalysis/surface/c
 The dataset is split into different files for each variable and year. For example, a single file download link for surface air temperature looks like:
 
 https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis/surface/air.sig995.1948.nc   
-    
-The structure is `'http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets/ncep.reanalysis/surface/air.sig995.`' + `'YYYY'` + `'.nc'`
+ 
+The structure is `'https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis/surface/air.sig995.`' + `'YYYY'` + `'.nc'`
     
 We want to download the surface temperature data from 1990 till 2000 and combine them all in a single xarray DataSet. To do so:
     
@@ -232,7 +232,7 @@ We want to download the surface temperature data from 1990 till 2000 and combine
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-base_url = 'http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets/ncep.reanalysis/surface/air.sig995'
+base_url = 'https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis/surface/air.sig995'
 
 files = [f'{base_url}.{year}.nc' for year in range(1990, 2001)]
 files
@@ -291,7 +291,7 @@ results.item_collection()
 ```
 
 ```{code-cell} ipython3
-stacked = stackstac.stack(results.item_collection())
+stacked = stackstac.stack(results.item_collection(), epsg=32613)
 ```
 
 ```{code-cell} ipython3
