@@ -15,9 +15,9 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *September, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
 
 ---
 
@@ -55,11 +55,9 @@ data_file = "./data/herstappe/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff"
 ```
 
 ```{code-cell} ipython3
-data_raw = rioxarray.open_rasterio(data_file)
+data_raw = xr.open_dataarray(data_file, engine="rasterio")
 data_raw
 ```
-
-The `rioxarray.open_rasterio` function is similar to `xarray.open_dataarray`.
 
 Once `rioxarray` is imported, it provides a `.rio` accessor on the xarray.DataArray object, which gives access to some properties of the raster data:
 
@@ -88,6 +86,8 @@ For the remainder of this section, we work with the integer converted version:
 ```{code-cell} ipython3
 data = (data_raw * 255).astype(np.uint8)
 ```
+
++++ {"jp-MarkdownHeadingCollapsed": true}
 
 ## Reprojecting rasters
 
@@ -122,6 +122,8 @@ The method can also be used to downsample at the same time:
 ```{code-cell} ipython3
 data.rio.reproject(data.rio.crs, resolution=120, resampling=Resampling.cubic).plot.imshow(figsize=(10,6))
 ```
+
++++ {"jp-MarkdownHeadingCollapsed": true}
 
 ## Extract the data you need
 
@@ -199,7 +201,21 @@ One important difference, though, is that the above `rasterio` workflow will not
 
 +++
 
-### Load DEM raster and river vector data
+### [Intermezzo] - data preparation Zwalm catchment
+
++++
+
+The following section provides the data preparation and data downloading steps to prepare the 'burning' of the shape of a river into a Digital Elevation Model (DEM) of the river catchment (all locations around the river from which rain ends up in the river). The 'burning' itself is a subtraction of the DEM pixels at locations of the river with a chosen value, i.e. decrease the elevation at locations where a river flows. To do so, we need:
+
+- A Digital Elevation Model (DEM) data set (raster data)
+- The shape of the catchment (vector data)
+- The river and tributaries (vector data)
+
+To be able to subtract the corresponding river pixels, the river vector data need to be converted into a raster with the same resolution and bounds as the (clipped) DEM.
+
++++
+
+__Load DEM raster and river vector data__
 
 +++
 
@@ -209,16 +225,17 @@ As example, we are using data from the Zwalm river area in Flanders.
 
 **! Manual download needed !** <br>
 
-The digital elevation model (DEM) can be downloaded via the [governmental website](https://download.vlaanderen.be/product/936/configureer): choose number 30 on the map and then click "Downloaden". Finally extract the zip file in `/data` directory.
+The digital elevation model (DEM) can be downloaded via the [governmental website](https://download.vlaanderen.be/product/936/configureer): choose number 30 on the map and then click "Downloaden". Finally extract the zip file in `/data` directory. Inside the `data`-directory, the file will be available in the subfolder `DHMVIIDSMRAS5m_k30/GeoTIFF/DHMVIIDSMRAS5m_k30.tif`.
 
 </div>
 
 ```{code-cell} ipython3
-dem_zwalm_file = "data/DHMVIIDSMRAS5m_k30/GeoTIFF/DHMVIIDSMRAS5m_k30.tif"
+dem_zwalm_file = "data/DHMVIIDSMRAS5m_k30/GeoTIFF/DHMVIIDSMRAS5m_k30.tif" 
 ```
 
 ```{code-cell} ipython3
-dem_zwalm = xr.open_dataarray(dem_zwalm_file, engine="rasterio").sel(band=1)
+dem_zwalm = xr.open_dataarray(dem_zwalm_file, engine="rasterio").sel(band=1).squeeze()
+dem_zwalm
 ```
 
 ```{code-cell} ipython3
@@ -234,8 +251,8 @@ import json
 import requests
 
 wfs_rivers = "https://geo.api.vlaanderen.be/VHAWaterlopen/wfs"
-params = dict(service='WFS', version='1.1.0', request='GetFeature',
-              typeName='VHAWaterlopen:Wlas', outputFormat='json',
+params = dict(service='WFS', version='1.1.0', request='GetFeature', 
+              typeName='VHAWaterlopen:Wlas', outputFormat='json', 
               cql_filter="(VHAZONENR=460)OR(VHAZONENR=461)", srs="31370")
 
 # Fetch data from WFS using requests
@@ -249,21 +266,17 @@ __Note__: A WFS is a standardized way to share vector GIS data sets on the inter
 And convert the output of the wfs call to a GeoDataFrame:
 
 ```{code-cell} ipython3
-# Create GeoDataFrame from geojson
+# Create GeoDataFrame from geojson - this is vector data
 segments = geopandas.GeoDataFrame.from_features(json.loads(r.content), crs="epsg:31370")
-```
-
-```{code-cell} ipython3
-segments.head()
 ```
 
 ```{code-cell} ipython3
 segments.plot(figsize=(8, 7))
 ```
 
-### Clip raster with vector
+__Clip raster with vector__
 
-The catchment extent is much smaller than the DEM file, so clipping the data first will make the computation less heavy.
+The catchment extent is much smaller than the DEM file, so clipping the data first will make the computation less heavy and focuses exclusively on the region from which rainfall is collected.
 
 +++
 
@@ -283,10 +296,6 @@ r = requests.get(wfs_bekkens, params=params)
 catchment = geopandas.GeoDataFrame.from_features(json.loads(r.content), crs="epsg:31370")
 ```
 
-```{code-cell} ipython3
-catchment
-```
-
 Save to a file for later reuse:
 
 ```{code-cell} ipython3
@@ -299,7 +308,7 @@ catchment.to_file("./data/zwalmbekken.geojson", driver="GeoJSON")
 geopandas.read_file("./data/zwalmbekken.geojson").plot()
 ```
 
-#### 1. Using rioxarray (rasterio)
+1. Clip using rioxarray (rasterio)
 
 +++
 
@@ -307,11 +316,12 @@ As shown above, we can use rioxarray to clip the raster file:
 
 ```{code-cell} ipython3
 dem_zwalm = xr.open_dataarray(dem_zwalm_file, engine="rasterio").sel(band=1)
-dem_zwalm
+dem_zwalm.spatial_ref
 ```
 
 ```{code-cell} ipython3
 clipped = dem_zwalm.rio.clip(catchment.to_crs('epsg:31370').geometry)
+clipped = clipped.squeeze().drop_vars(['band', 'spatial_ref']) # remove redundant coordinates
 ```
 
 Using rioxarray's `to_raster()` method, we can also save the result to a new GeoTIFF file:
@@ -332,27 +342,7 @@ img = clipped.plot.imshow(
 img.axes.set_aspect("equal")
 ```
 
-Remmeber, with (rio)xarray, the conversion of nodata values to NaNs (and thus using float dtype) is done by default (`mask_and_scale`), but can be excluded using `mask_and_scale=False`:
-
-```{code-cell} ipython3
-dem_zwalm2 = xr.open_dataarray(dem_zwalm_file, mask_and_scale=False).sel(band=1)
-```
-
-```{code-cell} ipython3
-dem_zwalm2.rio.nodata
-```
-
-```{code-cell} ipython3
-dem_zwalm2.rio.clip(catchment.to_crs('epsg:31370').geometry)
-```
-
-If we want to avoid loading the full original raster data, the `from_disk` keyword can be used.
-
-```{code-cell} ipython3
-dem_zwalm2.rio.clip(catchment.to_crs('epsg:31370').geometry, from_disk=True)
-```
-
-#### 2. (optional) Using GDAL CLI
+2. (optional) Using GDAL CLI
 
 +++
 
@@ -395,7 +385,11 @@ __NOTE:__ You can run a CLI command inside a Jupyter Notebook by prefixing it wi
 
 +++
 
-To create a raster with the vector "burned in", we can use the `rasterio.features.rasterize` function. This expects a list of (shape, value) tuples, and an output image shape and transform. Here, we will create a new raster image with the same shape and extent as the DEM above. And we first take a buffer of the river lines:
+To create a raster with the vector converted into pixels, we can use the `rasterio.features.rasterize` function. This expects a list of (shape, value) tuples, and an output image shape and transform. Here, we will create a new raster image with the same shape and extent as the DEM above. And we first take a buffer of the river lines:
+
+```{code-cell} ipython3
+clipped.rio.to_raster("zwalm_clip_test.tif")
+```
 
 ```{code-cell} ipython3
 import rasterio.features
@@ -403,20 +397,35 @@ import rasterio.features
 
 ```{code-cell} ipython3
 segments_buffered = segments.geometry.buffer(100)
-img = rasterio.features.rasterize(
+river_raster = rasterio.features.rasterize(
     segments_buffered, 
     out_shape=clipped.shape, 
     transform=clipped.rio.transform())
 ```
 
 ```{code-cell} ipython3
-img
+type(river_raster)
 ```
 
+The output of the rasterio function is a Numpy array. Let's convert to xarray objects
+
 ```{code-cell} ipython3
-fig, (ax0, ax1) = plt.subplots(1, 2)
-ax0.imshow(img)
-ax1.imshow(clipped.values - img*20, vmin=0, cmap="terrain") # just as an example
+ds_zwalm = clipped.to_dataset(name="dem").squeeze()
+ds_zwalm["river"] = xr.DataArray(data=river_raster, coords=clipped.coords)
+ds_zwalm["dem_burned"] = ds_zwalm["dem"] - ds_zwalm["river"]*20
+```
+
+As the river is now converted in a raster with the same pixels and boundaries as our DEM, we can burn the river into the DEM:
+
+```{code-cell} ipython3
+fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(12, 6))
+
+ds_zwalm["river"].plot.imshow(ax=ax0)
+ax0.axes.set_aspect('equal')
+
+ds_zwalm["dem_burned"].plot.imshow(ax=ax1, cmap="terrain", vmin=0)
+ax1.axes.set_aspect('equal')
+
 fig.tight_layout()
 ```
 
@@ -479,9 +488,9 @@ dem.plot.imshow(robust=True, cmap="terrain")
 
 **EXERCISE**:
 
-The dataset uses a large negative value to denote the "nodata" value (in this case meaning "outside of Flanders"). The nodata value is - by default - read by xarray as `np.nan`, but this behaviour can be excluded:
+The dataset uses a large negative value to denote the "nodata" value (in this case meaning "outside of Flanders"). The NODATA value stored in the file metadata is - by default - read by xarray as `np.nan` (see notebook 11-xarray-intro.ipynb), but this behaviour can be excluded:
     
-* Read the `zip://./data/gent/DHMVIIDTMRAS25m.zip"` file (band=1) without converting the nodata value to `np.nan` (keep -9999.).
+* Read the `zip://./data/gent/DHMVIIDTMRAS25m.zip"` file (band=1) without converting the NODATA value to `np.nan` (keep -9999.) and keeping the original data type.
 * Check the value -9999. is used as "nodata" value.
 * Repeat the plot from the previous exercise, but now set a fixed minimum value of 0 for the colorbar, to ignore the negative "nodata" in the color scheme.
 * Replace the "nodata" value with `np.nan` using the `where()` method. 
@@ -822,8 +831,6 @@ roads.head()
 ```
 
 ```{code-cell} ipython3
-:tags: [nbtutor-solution]
-
 roads["frc_omschrijving"].value_counts()
 ```
 
@@ -847,8 +854,8 @@ We are interested in the big roads, as these are the ones we want to avoid: "Mot
 
 ```{code-cell} ipython3
 road_types = [
-    "Motorway, Freeway, or Other Major Road",
-    "a Major Road Less Important than a Motorway",
+    "Motorway, Freeway or Other Major Road",
+    "Major Road Less Important than a Motorway",
     "Other Major Road",
 ]
 ```
@@ -886,8 +893,8 @@ Before we convert the vector data to a raster, we want to buffer the roads. We w
 
 ```{code-cell} ipython3
 buffer_per_roadtype = {
-    "Motorway, Freeway, or Other Major Road": 750,
-    "a Major Road Less Important than a Motorway": 500,
+    "Motorway, Freeway or Other Major Road": 750,
+    "Major Road Less Important than a Motorway": 500,
     "Other Major Road": 150,
 }
 ```
@@ -1170,7 +1177,7 @@ The **rasterstats** package provides methods to calculate summary statistics of 
 
 **! Manual download needed !** <br>
 
-The data can be downloaded from the EEA at [download link](https://www.eea.europa.eu/data-and-maps/data/world-digital-elevation-model-etopo5/zipped-dem-geotiff-raster-geographic-tag-image-file-format-raster-data/zipped-dem-geotiff-raster-geographic-tag-image-file-format-raster-data/at_download/file), then extract the zip file and save the file in the `data` subdirectory.
+The data can be downloaded from the EEA at [download link](https://www.eea.europa.eu/data-and-maps/data/world-digital-elevation-model-etopo5/zipped-dem-geotiff-raster-geographic-tag-image-file-format-raster-data/zipped-dem-geotiff-raster-geographic-tag-image-file-format-raster-data/at_download/file), then extract the zip file and save the file in the `data` subdirectory. After unzipping, the file will be available in the subdirectory `data/dem_geotiff/alwdgg.tif`.
 
 </div>
 
@@ -1289,7 +1296,7 @@ averbode_cog_rgb = 'http://s3-eu-west-1.amazonaws.com/lw-remote-sensing/cogeo/20
 Check the metadata, without downloading the data itself:
 
 ```{code-cell} ipython3
-averbode_data = rioxarray.open_rasterio(averbode_cog_rgb) # usage of rioxarray.open_rasterio
+averbode_data = xr.open_dataarray(averbode_cog_rgb, engine="rasterio")
 ```
 
 ```{code-cell} ipython3
