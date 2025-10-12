@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.5
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -15,9 +15,9 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *September, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY-SA 4.0 Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/)* Adapted from material from Phil Elson and Ryan Abernathey (see below).
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY-SA 4.0 Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/)* Adapted from material from Phil Elson and Ryan Abernathey (see below).
 
 ---
 

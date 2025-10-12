@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.5
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -15,9 +15,9 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *October, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
 
 ---
 
@@ -149,9 +149,65 @@ One typical use case for raster data is where you want to apply a mask to the da
 herstappe.where(herstappe > 0.3).sel(band="red").plot.imshow()
 ```
 
+## Reading NODATA values
+
++++
+
+GeoTiff raster files should encode the presence of NODATA pixels as part of the metadata. Check the metadata using the CLI tool GDAL, we see for each band the value that is used to represent NODATA pixels:
+
+```{code-cell} ipython3
+#!gdalinfo ./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff
+```
+
+In this example, the data is stored as _Unsigned Int16_ values (i.e. range from 0 to 65535, 16 bits are used to represent the magnitude of the number and none are reserved for a sign) and the value `65535` is used to represent NODATA.
+
+Rioxarray will use this metadata by default to replace array values equal to `_FillValue` with NaN (and scale if a scale factor and/or offset are in the metadata as well). This is because the `mask_and_scale` parameter is by default `True`:
+
+```{code-cell} ipython3
+tc_data = xr.open_dataarray("./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff", 
+                            engine="rasterio", mask_and_scale=True)
+tc_data.dtype
+```
+
+Whereas the data us stored as UInt16, rioxarray returns data as float32 with the NODATA values converted to NaN. Let's count the number of NaN values in the data set:
+
+```{code-cell} ipython3
+np.isnan(tc_data).sum()
+```
+
+To explicitly ignore the default behavior and read the data as stored without masking the NODATA values, put the `mask_and_scale` on False:
+
+```{code-cell} ipython3
+tc_data = xr.open_dataarray("./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff", 
+                            engine="rasterio", mask_and_scale=False)
+tc_data.dtype
+```
+
+Whereas the NODATA value is not applied, the nodata value stored in the geotiff is still available as attribute of the DataArray or accessible by the `.rio` accessor:
+
+```{code-cell} ipython3
+tc_data.rio.nodata, tc_data.attrs["_FillValue"]
+```
+
+The data is read as UInt16 and the number of values equal to 65535 in the data set:
+
+```{code-cell} ipython3
+(tc_data == 65535).sum()
+```
+
+<div class="alert alert-info" style="font-size:100%">
+
+**Remember**: <br>
+
+The `mask_and_scale` parameter is [by default `True`](https://docs.xarray.dev/en/stable/generated/xarray.open_dataarray.html) in xarray for the different engines. This might lead to unwanted data type conversions when the 'NODATA' is not properly included in the raw data file. Make sure to check the data types.
+
+</div>
+
++++
+
 ### Let's practice!
 
-We'll again look at some Sentinel GeoTiff data, this time from the region of the City of Ghent:
+We'll look at some Sentinel GeoTiff data, this time from the region of the City of Ghent:
 
 +++
 
@@ -160,12 +216,13 @@ We'll again look at some Sentinel GeoTiff data, this time from the region of the
 **EXERCISE**:
 
 * Read in the file `./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff` with xarray and assign the data to a new variable `tc_data`.  
-* Check the data type of `tc_data` and compare it with the information in the file metadata using `gdalinfo` command (GDAL CLI).
-* Use the `mask_and_scale` parameter in the reader function to make sure the data type of `tc_data` is the same as the raw data.     
+* Use the `mask_and_scale` parameter explicitly in the reader function to mask (and scale) the dataset with the NODATA metadata encoded in the geotiff file.     
+* Check which value the `tc_data.rio.nodata` attribute specifies as NODATA. Why is this not 65535?
     
 <details><summary>Hints</summary>
 
-* To run a command from the command line, add the `!` in front e.g. `!gdalinfo FILENAME`   
+* Whereas `mask_and_scale` is by default `True`, adding it makes the conversion explicit.
+* After masking, the NaN value in the float data is np.nan as `tc_data.rio.nodata` attribute also specifies.
 
 </details>
     
@@ -174,39 +231,21 @@ We'll again look at some Sentinel GeoTiff data, this time from the region of the
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-tc_data = xr.open_dataarray("./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff", engine="rasterio")
-tc_data.dtype
-```
-
-```{code-cell} ipython3
-:tags: [nbtutor-solution]
-
-!gdalinfo ./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff
-```
-
-```{code-cell} ipython3
-:tags: [nbtutor-solution]
-
 tc_data = xr.open_dataarray("./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff", 
-                            engine="rasterio", mask_and_scale=False)
-tc_data.dtype
+                            engine="rasterio", mask_and_scale=True)
 ```
 
-<div class="alert alert-info" style="font-size:100%">
+```{code-cell} ipython3
+:tags: [nbtutor-solution]
 
-**Remember**: <br>
-
-The `mask_and_scale` parameter is [by default `True`](https://docs.xarray.dev/en/stable/generated/xarray.open_dataarray.html) in xarray for the different engines. This might lead to unwanted data type conversions when the 'nodata' is not properly included in the raw data file. Make sure to check the data types.
-
-</div>
-
-+++
+tc_data.rio.nodata # after masking NODATA value are represented as np.nan
+```
 
 <div class="alert alert-success">
 
 **EXERCISE**:
 
-* Read in the file `./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff` with xarray in the original raw data dtype and assign the data to a new variable `tc_data`.  
+* Read in the file `./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff` with xarray in the __original raw data__ dtype and assign the data to a new variable `tc_data`.  
 * Inspect the display of `tc_data`. What are the different dimensions of the array? 
 * Select only the *second* layer of `tc_data` and assign the output to a new variable `tc_g`.
 * Plot the second (green) layer.
@@ -287,14 +326,16 @@ tc_data[:, ::5, ::5].shape
 
 **EXERCISE**:
 
-Elements with the value `65535` do represent 'Not a Number' (NaN) values. However, NumPy does not support NaN values for integer data, so we'll convert to float first as data type. After reading in the data set `./data/gent/raster/2020-09-17_Sentinel_2_L1C_B04.tiff` (assign data to variable `b4_data`):
+For the file `2020-09-17_Sentinel_2_L1C_B04.tiff`, the NODATA is not stored in the metadata of the file. Still, the elements with the value `65535` do represent 'Not a Number' (NaN) values. The conversion need to be done manually and use `mask_and_scale=False`. 
+
+NumPy does not support NaN values for integer data, so we'll convert to float first as data type. After reading in the data set `./data/gent/raster/2020-09-17_Sentinel_2_L1C_B04.tiff` (assign data to variable `b4_data`):
     
 * Count the number of elements that are equal to `65535`
 * Convert the data type to `float`, assign the result to  a new variable `b4_data_f` (numpy does not support NaN for integers).
 * Assign NaN (`np.nan`) value to each of the elements of `b4_data_f` equal to `65535`
 * Count the number of NaN values in the `b4_data_f` data
 * Make a histogram of both the `b4_data` and `b4_data_f` data. Can you spot the difference?
-    
+
 <details><summary>Hints</summary>    
 
 * `np.nan` represents _Not a Number (NaN)_ in Numpy. You can mask an array with np.nan values using the `where()`method
@@ -346,6 +387,16 @@ b4_data_f.plot.hist(bins=30, log=True, ax=ax1);
 ```
 
 This is what the `mask_and_scale` option also does: it reads the nodata value from the metadata in the tiff file and uses this to mask the no-data value with a NaN value.
+
++++
+
+<div class="alert alert-info" style="font-size:100%">
+
+**Remember**: <br>
+
+Whereas the `mask_and_scale` parameter is a convenient functionality, it only works when the NODATA metadata is stored in the GeoTiff file. Make sure to check the value distribution with `mask_and_scale=False` to check for missing NODATA metadata.
+
+</div>
 
 +++
 
@@ -586,7 +637,7 @@ herstappe_rescaled.plot.imshow(figsize=(9, 5))
 
 The true color data set for Ghent `./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff` contains 3 bands. Plotting with the `imshow` function can plot 3-D (RGB) data sets, but when running `gent.plot.imshow()`, we get an error. This is because matplotlib expects data in the range of [0..1] for floats or [0..255] for integers. 
     
-The data type of this specific array `gent` is 16bit unsigned integer. Detailed info on data types is out of scope of this course, but remember that using 16bit unsigned integer, it can contain `2**16` different (all positive) integer values to represent the data range (in this case 0 to 1):
+When working with the original raw data of the file, the data type of this specific array `gent` is 16bit unsigned integer. Remember that using 16bit unsigned integer, it can contain `2**16` different (all positive) integer values to represent the data range (in this case 0 to 1):
 
 ```
 >>> 2**16
@@ -595,15 +646,16 @@ The data type of this specific array `gent` is 16bit unsigned integer. Detailed 
 
 In this excercise, we will convert the data to floats within the data range 0 -> 1 so we can plot it as RGB values.
 
-- Read the data file and assign to a variable `gent`.
+- Read the data file and assign to a variable `gent`. Read the original raw data without masking. 
 - Try to plot it with the `imshow()` method.
-- Convert the array to a float array and call it `gent_f`.
-- Now divide the array by 65536 to get our data in a [0-1] range.
+- Convert the array to a float array, switch values equal to 65535 into NaN-values and call the result `gent_f`. 
+- Now divide the array by 65535 to get our data in a [0-1] range.
 - Plot the result with the `imshow()` method.
 
 <details><summary>Hints</summary>
 
-* To convert the data type of an array, you can use the `astype()` method. In this case you might as well opt to have the `mask_and_scale=true` as this will do the float conversion already.
+* To convert the data type of an array, you can use the `astype()` method.
+* The `.where()` method is very useful to convert all values not according to the condition into NaN values
 * Masking out part of the data based on a condition can be done with the `where()` method.
 
 </details>    
@@ -627,7 +679,7 @@ gent.plot.imshow()
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-# Convert to float
+# Convert to float and convert values equal to 65535 into NaN
 gent_f = gent.astype(float)
 gent_f = gent_f.where(gent_f != 65535)
 ```
@@ -636,7 +688,7 @@ gent_f = gent_f.where(gent_f != 65535)
 :tags: [nbtutor-solution]
 
 # Divide by the maximum of the int16 range to get [0-1] data
-gent_f = gent_f / 2**16
+gent_f = gent_f / 65535
 ```
 
 ```{code-cell} ipython3

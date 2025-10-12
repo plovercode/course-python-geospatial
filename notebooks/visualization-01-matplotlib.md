@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.5
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -14,9 +14,9 @@ kernelspec:
 <p><font size="6"><b>Visualization - Matplotlib</b></font></p>
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *September, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
 
 ---
 
@@ -74,7 +74,11 @@ Under the hood matplotlib still had to create a Figure artist, its just we didn'
 
 +++
 
-## - essential stuff - `pyplot` versus Object based
+## - essential stuff - Matplotlib works 'Object Oriented'
+
++++
+
+Objects have characteristics (attributes) and can do things (methods).
 
 +++
 
@@ -82,37 +86,32 @@ Some example data:
 
 ```{code-cell} ipython3
 x = np.linspace(0, 5, 10)
-y = x ** 2
+y = x ** 10
 ```
 
-Observe the following difference:
-
-+++
-
-**1. pyplot style: plt...** (you will see this a lot for code online!)
+Create a `Figure` and `Axes` object to plot data. Use the `Axes` object to plot x and y data.
 
 ```{code-cell} ipython3
-ax = plt.plot(x, y, '-')
+fig, ax = plt.subplots()
+ax.plot(x, y, '-')
 ```
 
-**2. creating objects**
+Using the existing objects, further adjustment can be done using the existing methods, e.g.
 
 ```{code-cell} ipython3
 from matplotlib import ticker
-```
-
-```{code-cell} ipython3
-x = np.linspace(0, 5, 10)
-y = x ** 10
 
 fig, ax = plt.subplots()
 ax.plot(x, y, '-')
+
+# Add a title
 ax.set_title("My data")
 
+# Add custom formatting instead of the default scientific formatting:
 ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.1f"))
 ```
 
-Although a little bit more code is involved, the advantage is that we now have **full control** of where the plot axes are placed, and we can easily add more than one axis to the figure:
+By using the Matplotlib objects, we now have **full control** of where the plot axes are placed, and we can add more than one axis to the Figure:
 
 ```{code-cell} ipython3
 fig, ax1 = plt.subplots()
@@ -249,11 +248,11 @@ or go all the way and define your own custom style, see the [official documentat
 
 +++
 
-## Interaction with Pandas
+## Interaction with Pandas/xarray
 
 +++
 
-What we have been doing while plotting with Pandas:
+The default plotting of Pandas/xarray relies on Matplotlib. Let's use a Pandas DataFrame as an example
 
 ```{code-cell} ipython3
 import pandas as pd
@@ -269,85 +268,36 @@ flowdata = pd.read_csv('data/vmm_flowdata.csv',
 flowdata.head()
 ```
 
-Under the hood, it creates an Matplotlib Figure with an Axes object.
+### From Pandas/xarray to Matplotlib
 
 +++
 
-### Pandas versus matplotlib
-
-+++
-
-#### Comparison 1: single plot
+Under the hood, Pandas creates an Matplotlib Figure with an Axes object. The `Axis` object(s) returned can be further adjusted:
 
 ```{code-cell} ipython3
-flowdata.plot(figsize=(16, 6), ylabel="Discharge m3/s") # SHIFT + TAB this!
+ax = flowdata.plot()
+ax.set_title('discharge [$m^3/s$]');
 ```
 
-Making this with matplotlib...
-
-```{code-cell} ipython3
-fig, ax = plt.subplots(figsize=(16, 6))
-ax.plot(flowdata)
-ax.legend(["L06_347", "LS06_347", "LS06_348"])
-```
-
-is still ok!
-
-+++
-
-#### Comparison 2: with subplots
+Pandas/xarray provide a number of convenience options as keyword parameters:
 
 ```{code-cell} ipython3
 axs = flowdata.plot(subplots=True, sharex=True,
                     figsize=(16, 8), colormap='viridis', # Dark2
                     fontsize=15, rot=0)
-axs[0].set_title("EXAMPLE");
+axs[0].set_title('discharge [$m^3/s$]');
 ```
 
-Mimicking this in matplotlib (just as a reference, it is basically what Pandas is doing under the hood):
-
-```{code-cell} ipython3
-from matplotlib import cm
-import matplotlib.dates as mdates
-
-colors = [cm.viridis(x) for x in np.linspace(0.0, 1.0, len(flowdata.columns))] # list comprehension to set up the colors
-
-fig, axs = plt.subplots(3, 1, figsize=(16, 8))
-
-for ax, col, station in zip(axs, colors, flowdata.columns):
-    ax.plot(flowdata.index, flowdata[station], label=station, color=col)
-    ax.legend()
-    if not ax.get_subplotspec().is_last_row():
-        ax.xaxis.set_ticklabels([])
-        ax.xaxis.set_major_locator(mdates.YearLocator())
-    else:
-        ax.xaxis.set_major_locator(mdates.YearLocator())
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
-        ax.set_xlabel('Time')
-    ax.tick_params(labelsize=15)
-```
-
-Is already a bit harder ;-)
+### From Matplotlib to Pandas/xarray
 
 +++
 
-### Best of both worlds...
+Starting from 'empty' Matplotlib objects, we can tell Pandas/xarray to use these to plot new data on:
 
 ```{code-cell} ipython3
 fig, (ax0, ax1) = plt.subplots(2, 1) #prepare a Matplotlib figure
 
 flowdata.plot(ax=ax0) # use Pandas for the plotting
-```
-
-```{code-cell} ipython3
-fig, ax = plt.subplots(figsize=(15, 5)) #prepare a matplotlib figure
-
-flowdata.plot(ax=ax) # use pandas for the plotting
-
-# Provide further adaptations with matplotlib:
-ax.set_xlabel("")
-ax.grid(which="major", linewidth='0.5', color='0.8')
-fig.suptitle('Flow station time series', fontsize=15)
 ```
 
 ```{code-cell} ipython3
@@ -362,19 +312,6 @@ ax1.set_ylabel("LS06_348")
 ax1.legend()
 ```
 
-<div class="alert alert-info">
-
- <b>Remember</b>: 
-
-* You can do anything with matplotlib, but at a cost... <a href="http://stackoverflow.com/questions/tagged/matplotlib">stackoverflow</a>
-* The preformatting of Pandas provides mostly enough flexibility for quick analysis and draft reporting. It is not for paper-proof figures or customization
-
-If you take the time to make your perfect/spot-on/greatest-ever matplotlib-figure: Make it a <b>reusable function</b>!
-
-</div>
-
-+++
-
 <div class="alert alert-info" style="font-size:18px">
 
 **Remember** 
@@ -386,6 +323,19 @@ If you take the time to make your perfect/spot-on/greatest-ever matplotlib-figur
 +++
 
 # Need more matplotlib inspiration?
+
++++
+
+<div class="alert alert-info">
+
+ <b>Remember</b>: 
+
+* You can do anything with matplotlib, but at a cost... <a href="http://stackoverflow.com/questions/tagged/matplotlib">stackoverflow</a>
+* The preformatting of Pandas provides mostly enough flexibility for quick analysis and draft reporting. It is not for paper-proof figures or customization
+
+If you take the time to make your perfect/spot-on/greatest-ever matplotlib-figure: Make it a <b>reusable function</b>!
+
+</div>
 
 +++
 
