@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.5
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -15,23 +15,11 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *October, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
 
 ---
-
-+++
-
-Air pollution remains a key environmental problem in an increasingly urbanized world. While concentrations of traffic-related pollutants like nitrogen dioxide (NO2) are known to vary over short distances, official monitoring networks remain inherently sparse, as reference stations are costly to construct and operate.
-
-The [**CurieuzeNeuzen**](https://curieuzeneuzen.be/curieuzeneuzen-vlaanderen-2018/) citizen science project collected a large, spatially distributed dataset that can complement official monitoring. In a first edition in 2016, in Antwerp, 2000 citizens were involved. This success was followed by a second edition in 2018 engaging 20.000 citizens across Flanders, a highly urbanized, industrialized and densely populated region in Europe. The participants measured the NO2 concentrations in front of their house using a low-cost sampler design (see picture below, where passive sampling tubes are attached using a panel to a window at the facade). 
-
-Source: preprint paper at https://eartharxiv.org/repository/view/19/
-
-In this case study, we are going to make use of the data collected across Flanders in 2018: explore the data and investigate relationships with other variables.
-
-<img src="../img/CN_measurement_setup.png" alt="Measurement panel" style="width:800px">
 
 ```{code-cell} ipython3
 import numpy as np
@@ -1065,7 +1053,7 @@ gdf_gent.head()
 gdf_gent["road_type"].value_counts()
 ```
 
-**Note!** We have been using a brute-force search for the closest street by calculating for each point the distance to all streets. This is a good exercise to learn the syntax, but there are however better methods for such "nearest" queries. See eg https://automating-gis-processes.github.io/site/notebooks/L3/nearest-neighbor-faster.html
+**Note!** We have been using a brute-force search for the closest street by calculating for each point the distance to all streets. This is a good exercise to learn the syntax, but there are better methods for such "nearest" queries. See eg https://geopandas.org/en/latest/docs/user_guide/mergingdata.html#nearest-joins
 
 +++
 
