@@ -15,7 +15,7 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2025*
+> *October, 2025*
 >
 > *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY-SA 4.0 Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/)* Adapted from material from Phil Elson and Ryan Abernathey (see below).
 
@@ -486,4 +486,4 @@ __Note__ This is what xarray is doing under the hood to pass rio/spatial arrays 
 
 ## Doing More
 
-Browse the [Cartopy Gallery](https://scitools.org.uk/cartopy/docs/latest/gallery/index.html) to learn about all the different types of data and plotting methods available!
+Browse the [Cartopy Gallery](https://cartopy.readthedocs.io/stable/gallery/index.html) to learn about all the different types of data and plotting methods available!

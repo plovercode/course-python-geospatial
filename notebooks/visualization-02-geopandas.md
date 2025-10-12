@@ -15,9 +15,9 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *October, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](https://creativecommons.org/licenses/by/4.0/)*
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](https://creativecommons.org/licenses/by/4.0/)*
 
 ---
 
@@ -197,33 +197,3 @@ ax.gridlines()
 ```
 
 **For more on cartopy**, see the [visualization-03-cartopy.ipynb](visualization-03-cartopy.ipynb) notebook.
-
-+++
-
-## Using `geoplot`
-
-The `geoplot` packages provides some additional functionality compared to the basic `.plot()` method on GeoDataFrames:
-
-- High-level plotting API (with more plot types as geopandas)
-- Native projection support through cartopy
-
-https://residentmario.github.io/geoplot/index.html
-
-```{code-cell} ipython3
-import geoplot
-import geoplot.crs as gcrs
-```
-
-```{code-cell} ipython3
-fig, ax = plt.subplots(figsize=(10, 10), subplot_kw={
-    'projection': gcrs.Orthographic(central_latitude=40.7128, central_longitude=-74.0059)
-})
-geoplot.choropleth(countries, hue='gdp_per_cap', projection=gcrs.Orthographic(), ax=ax,
-                   cmap='magma', linewidth=0.5, edgecolor='white')
-ax.set_global()
-ax.spines['geo'].set_visible(True)
-```
-
-```{code-cell} ipython3
-
-```
