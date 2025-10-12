@@ -15,9 +15,9 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *October, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](https://creativecommons.org/licenses/by/4.0/)*
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](https://creativecommons.org/licenses/by/4.0/)*
 
 ---
 
@@ -117,6 +117,22 @@ Making a quick interactive plot is also available as the `.explore()` method on 
 </div>
 
 +++
+
+## Vector data with Lonboard
+
++++
+
+Lonboard is a Python library for fast, interactive geospatial vector data visualization in Jupyter. Compared to Leaflet (shown above), it is especially useful when you want to explore larger datasets.
+
+https://developmentseed.org/lonboard/latest/
+
+```{code-cell} ipython3
+import lonboard
+```
+
+```{code-cell} ipython3
+lonboard.viz(cities)
+```
 
 ## Using Holoviews for raster data with xarray
 
