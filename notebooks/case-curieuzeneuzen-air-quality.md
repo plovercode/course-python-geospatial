@@ -21,6 +21,18 @@ kernelspec:
 
 ---
 
++++
+
+Air pollution remains a key environmental problem in an increasingly urbanized world. While concentrations of traffic-related pollutants like nitrogen dioxide (NO2) are known to vary over short distances, official monitoring networks remain inherently sparse, as reference stations are costly to construct and operate.
+
+The [**CurieuzeNeuzen**](https://curieuzeneuzen.be/curieuzeneuzen-vlaanderen-2018/) citizen science project collected a large, spatially distributed dataset that can complement official monitoring. In a first edition in 2016, in Antwerp, 2000 citizens were involved. This success was followed by a second edition in 2018 engaging 20.000 citizens across Flanders, a highly urbanized, industrialized and densely populated region in Europe. The participants measured the NO2 concentrations in front of their house using a low-cost sampler design (see picture below, where passive sampling tubes are attached using a panel to a window at the facade). 
+
+Source: preprint paper at https://eartharxiv.org/repository/view/19/
+
+In this case study, we are going to make use of the data collected across Flanders in 2018: explore the data and investigate relationships with other variables.
+
+<img src="../img/CN_measurement_setup.png" alt="Measurement panel" style="width:800px">
+
 ```{code-cell} ipython3
 import numpy as np
 import pandas as pd
