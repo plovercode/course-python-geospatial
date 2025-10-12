@@ -31,8 +31,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import cmocean
-
-%matplotlib inline
 ```
 
 ## `xarray.Dataset` for multiple variables

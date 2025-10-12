@@ -398,7 +398,6 @@ Whereas the `mask_and_scale` parameter is a convenient functionality, it only wo
 
 </div>
 
-
 +++
 
 ## Plotting

@@ -22,8 +22,6 @@ kernelspec:
 ---
 
 ```{code-cell} ipython3
-%matplotlib inline
-
 import numpy as np
 ```
 
