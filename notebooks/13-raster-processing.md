@@ -87,8 +87,6 @@ For the remainder of this section, we work with the integer converted version:
 data = (data_raw * 255).astype(np.uint8)
 ```
 
-+++ {"jp-MarkdownHeadingCollapsed": true}
-
 ## Reprojecting rasters
 
 +++
@@ -122,8 +120,6 @@ The method can also be used to downsample at the same time:
 ```{code-cell} ipython3
 data.rio.reproject(data.rio.crs, resolution=120, resampling=Resampling.cubic).plot.imshow(figsize=(10,6))
 ```
-
-+++ {"jp-MarkdownHeadingCollapsed": true}
 
 ## Extract the data you need
 

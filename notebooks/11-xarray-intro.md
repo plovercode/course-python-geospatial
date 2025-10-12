@@ -169,7 +169,7 @@ tc_data = xr.open_dataarray("./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_c
 tc_data.dtype
 ```
 
-Whereas the data us stored as Uint16, rioxarray returns data as float32 with the NODATA values converted to NAN. Let's count the number of NaN values in the data set:
+Whereas the data us stored as UInt16, rioxarray returns data as float32 with the NODATA values converted to NaN. Let's count the number of NaN values in the data set:
 
 ```{code-cell} ipython3
 np.isnan(tc_data).sum()
@@ -189,7 +189,7 @@ Whereas the NODATA value is not applied, the nodata value stored in the geotiff 
 tc_data.rio.nodata, tc_data.attrs["_FillValue"]
 ```
 
-The data is read as Uint16 and the number of values equal to 65535 in the data set:
+The data is read as UInt16 and the number of values equal to 65535 in the data set:
 
 ```{code-cell} ipython3
 (tc_data == 65535).sum()
@@ -648,7 +648,7 @@ In this excercise, we will convert the data to floats within the data range 0 ->
 
 - Read the data file and assign to a variable `gent`. Read the original raw data without masking. 
 - Try to plot it with the `imshow()` method.
-- Convert the array to a float array, switch values equal to 65535 into Nan-values and call the result `gent_f`. 
+- Convert the array to a float array, switch values equal to 65535 into NaN-values and call the result `gent_f`. 
 - Now divide the array by 65535 to get our data in a [0-1] range.
 - Plot the result with the `imshow()` method.
 
