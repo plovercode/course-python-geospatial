@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.5
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -15,9 +15,9 @@ kernelspec:
 
 
 > *DS Python for GIS and Geoscience*  
-> *September, 2024*
+> *October, 2025*
 >
-> *© 2024, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
+> *© 2025, Joris Van den Bossche and Stijn Van Hoey. Licensed under [CC BY 4.0 Creative Commons](http://creativecommons.org/licenses/by/4.0/)*
 
 ---
 
@@ -103,16 +103,13 @@ Zooming in on this figure we re-read and rasterize the subset we are viewing to 
 # PANGEO: A community platform for Big Data geoscience
 
 
-<center><img src="https://pangeo.io/_images/pangeo_simple_logo.svg" width="500px"></center>
+<center><img src="https://pangeo.io/Pangeo-assets/pangeo_logo.png" width="500px"></center>
 
-Website: https://pangeo.io/index.html
+Website: https://pangeo.io/
 
 They have a gallery with many interesting examples, many of them using this combination of xarray and dask.
 
 Pangeo focuses primarily on *cloud computing* (storing the big datasets in cloud-native file formats and also doing the computations in the cloud), but all the tools like xarray and dask developed by this community and shown in the examples also work on your laptop or university's cluster.
-
-
-<img src="https://pangeo.io/_images/pangeo_tech_1.png" width="800px">
 
 ```{code-cell} ipython3
 
