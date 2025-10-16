@@ -183,8 +183,8 @@ The Eiffel Tower is an iron lattice tower built in the 19th century, and is prob
 The location of the Eiffel Tower is: x of 648237.3 and y of 6862271.9
 
 * Create a Shapely point object with the coordinates of the Eiffel Tower and assign it to a variable called `eiffel_tower`. Print the result.
-* Check if the Eiffel Tower is located within the Montparnasse district (provided).
-* Check if the Montparnasse district contains the bike station location.
+* Check if the Eiffel Tower is located within the Montparnasse district (_code to get the Polygon for Montparnasse is provided_).
+* Check if the Montparnasse district contains the selected bike station location (_code to get the Point for the bike station is provided_).
 * Calculate the distance between the Eiffel Tower and the bike station (note: in this case, the distance is returned in meters).
 
 

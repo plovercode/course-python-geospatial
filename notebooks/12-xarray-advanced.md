@@ -532,9 +532,9 @@ era5_renamed = era5.rename(mapping)
 
 **EXERCISE**:
 
-Select the pressure data for the pixel closest to the center of Ghent (lat: -51.05, lon: 3.71) and assign the outcome to a new variable `ghent_pressure`.
+Select the pressure data for the pixel closest to the center of Ghent (lat: 51.05, lon: 3.71) and assign the outcome to a new variable `ghent_pressure`.
 
-Define a Matplotlib `Figure` and `Axes` (respectively named `fig, ax`) and use it to create a plot that combines the yearly average of the pressure data in Gent with the monthly pressure data as function of time for that same pixel as line plots. Change the name of the y-label to `'Pressure (Pa)'` and the title of the plot to `'Pressure (Pa) in Ghent (at -51.05, 3.71)'` (see notebook [visualization-01-matplotlib.ipynb](./visualization-01-matplotlib.ipynb#An-small-cheat-sheet-reference-for-some-common-elements) for more information)
+Define a Matplotlib `Figure` and `Axes` (respectively named `fig, ax`) and use it to create a plot that combines the yearly average of the pressure data in Gent with the monthly pressure data as function of time for that same pixel as line plots. Change the name of the y-label to `'Pressure (Pa)'` and the title of the plot to `'Pressure (Pa) in Ghent (at 51.05, 3.71)'` (see notebook [visualization-01-matplotlib.ipynb](./visualization-01-matplotlib.ipynb#An-small-cheat-sheet-reference-for-some-common-elements) for more information)
 
 <details><summary>Hints</summary>
     
@@ -555,14 +555,14 @@ ghent_pressure.plot.line(ax=ax)
 ghent_pressure.resample(time="YE").mean().plot.line(ax=ax)
 
 ax.set_ylabel('Pressure (Pa)')
-ax.set_title('Pressure (Pa) in Ghent (-51.05, 3.71)')
+ax.set_title('Pressure (Pa) in Ghent (51.05, 3.71)')
 ```
 
 <div class="alert alert-success">
 
 **EXERCISE**:
     
-Select the precipitation data for the pixel closest to the center of Ghent (lat: -51.05, lon: 3.71) and assign the outcome to a new variable `ghent_precipitation`.
+Select the precipitation data for the pixel closest to the center of Ghent (lat: 51.05, lon: 3.71) and assign the outcome to a new variable `ghent_precipitation`.
     
 For the Ghent pixel, calculate the maximal precipitation _for each month of the year_ (1 -> 12) and convert it to mm precipitation.
     
