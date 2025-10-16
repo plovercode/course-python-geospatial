@@ -90,7 +90,7 @@ The data contains a single data variable `sst` and has 3 dimensions: lon, lat an
 <summary>Hints</summary>
     
 - The number of elements or `size` of an array is an attribute of an xarray.DataArray and not of a xarray.Dataset
-- Also the `shape` of an array is an attribute of an xarray.DataArray. A xarray.Dataset has the `dims` attribute to query dimension sizes
+- Also the `shape` of an array is an attribute of an xarray.DataArray. A xarray.Dataset or DataArray has the `sizes` attribute to query dimension sizes
 
 </details>    
     
@@ -113,8 +113,8 @@ ds["sst"].shape
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-# dims attribute of dataset object
-ds.dims
+# sizes attribute of dataset object
+ds.sizes
 ```
 
 ```{code-cell} ipython3
