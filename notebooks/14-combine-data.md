@@ -206,13 +206,13 @@ https://www.esrl.noaa.gov/psd/thredds/catalog/Datasets/ncep.reanalysis/surface/c
 
 The dataset is split into different files for each variable and year. For example, a single file download link for surface air temperature looks like:
 
-https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis/surface/air.sig995.1948.nc   
+https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis/surface/air.sig995.1948.nc
  
-The structure is `'https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis/surface/air.sig995.`' + `'YYYY'` + `'.nc'`
+The structure for the xarray accessible URL is `'https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis/surface/air.sig995.`' + `'YYYY'` + `'.nc'`
     
 We want to download the surface temperature data from 1990 till 2000 and combine them all in a single xarray DataSet. To do so:
     
-- Prepare all the links by composing the base_url ('http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets/ncep.reanalysis/surface/air.sig995') with the required years
+- Prepare all the links by composing the base_url ('https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis/surface/air.sig995') with the required years
 - Use the list of file links as the inputfor the `xr.open_mfdataset` to create a single `xarray.DataSet`.
 - Whereas this is 600MB of data, the initial loading is not actually reading in the data.
    
@@ -232,7 +232,7 @@ We want to download the surface temperature data from 1990 till 2000 and combine
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-base_url = 'https://psl.noaa.gov/thredds/fileServer/Datasets/ncep.reanalysis/surface/air.sig995'
+base_url = 'https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis/surface/air.sig995'
 
 files = [f'{base_url}.{year}.nc' for year in range(1990, 2001)]
 files
@@ -241,7 +241,7 @@ files
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-ds = xr.open_mfdataset(files, parallel=True)
+ds = xr.open_mfdataset(files)
 ds
 ```
 
@@ -249,7 +249,7 @@ ds
 
 +++
 
-__Note__ _These dependencies are not included in the environment, to run this section, install the required packages first in your conda environment: `conda install stackstac pystac-client`._
+__Note__ _These dependencies are not included in the environment, to run this section, install the required packages first in your pixi environment: `pixi add stackstac pystac-client`._
 
 +++
 

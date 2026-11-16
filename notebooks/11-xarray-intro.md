@@ -156,7 +156,7 @@ herstappe.where(herstappe > 0.3).sel(band="red").plot.imshow()
 GeoTiff raster files should encode the presence of NODATA pixels as part of the metadata. Check the metadata using the CLI tool GDAL, we see for each band the value that is used to represent NODATA pixels:
 
 ```{code-cell} ipython3
-#!gdalinfo ./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff
+#!gdal raster info ./data/gent/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff
 ```
 
 In this example, the data is stored as _Unsigned Int16_ values (i.e. range from 0 to 65535, 16 bits are used to represent the magnitude of the number and none are reserved for a sign) and the value `65535` is used to represent NODATA.
