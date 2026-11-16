@@ -31,6 +31,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import cmocean
+
+%matplotlib inline
 ```
 
 ## `xarray.Dataset` for multiple variables
@@ -734,4 +736,8 @@ For example:
 ```{code-cell} ipython3
 gent_ds["ndvi"] = (gent_ds["b8"] - gent_ds["b4"])/(gent_ds["b8"] + gent_ds["b4"])
 gent_ds.to_array(dim="layer")
+```
+
+```{code-cell} ipython3
+
 ```
