@@ -121,7 +121,6 @@ class: middle, section_background
 
 - Consistent package manager across Windows, Mac and Linux
 - Many precompiled packages available
-- Less problems with installation
 
 --
 
@@ -130,6 +129,12 @@ class: middle, section_background
 - Manage the dependencies of a specific project/paper/group/...
 - You can install different version of Python and other packages alongside on your computer
 - Easily share environments with other
+
+--
+
+### Why conda packages?
+
+- Not limited to Python packages (PyPI), but for any language (e.g. GDAL, R, ...)
 
 ---
 
@@ -168,8 +173,7 @@ List all installed packages: `pixi list`
 See the docs: https://pixi.prefix.dev
 
 ---
-## Keep track of your python dependencies 
-## with `pixi.toml` and `pixi.lock`
+## Keep track of your python dependencies with `pixi.toml` and `pixi.lock`
 
 Pixi updates both files automatically on every `pixi add` / `pixi remove`. Share them (e.g. commit to git) and anyone gets the same environment with:
 
@@ -182,6 +186,12 @@ Need an `environment.yml` for conda users?
 
 ```
 pixi workspace export conda-environment environment.yml
+```
+
+Need a terminal with an activated environment?
+
+```
+pixi shell
 ```
 </small>
 
@@ -198,8 +208,8 @@ pixi workspace export conda-environment environment.yml
 
 ## Interactive Development Environment (IDE)
 
-* [**VS Code**](https://code.visualstudio.com/) is also shipped with Anaconda. General purpose editor with powerful plugin ecosystem.
-* [**Spyder**](https://pythonhosted.org/spyder/) is shipped with Anaconda. The familiar environment for Matlab/Rstudio-users.
+* [**VS Code**](https://code.visualstudio.com/): general purpose editor with powerful plugin ecosystem.
+* [**Spyder**](https://pythonhosted.org/spyder/): the familiar environment for Matlab/Rstudio-users.
 * [**PyCharm**](https://www.jetbrains.com/pycharm/): Popular for web-development and Django applications, powerful when doing 'real' development (packages, libraries, software)
 * [Eclipse + **pyDev plugin**](http://www.pydev.org/): If you already work in Eclipse, add the python environment
 * ...
