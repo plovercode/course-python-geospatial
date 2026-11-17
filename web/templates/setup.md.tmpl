@@ -28,7 +28,7 @@ cd {{ repository }}
 ### Option 2: You are not a git user
 
 To download the repository to your local machine as a zip-file, click the  `download ZIP` on the
-repository page <https://github.com/plovercode/{{ repository }}> (green button "Code"):
+repository page <https://github.com/plovercode/{{ repository }}> (green button "Code" -> "Download ZIP"):
 
 ![Download button](./static/img/download-button.png)
 
@@ -56,9 +56,9 @@ For Windows users, accept the default installation guidelines:
 
 ### 2.2 Setup after `Pixi` installation
 
-1. Open the terminal window. On Windows use "Command line" or "cmd", open it via Start Menu > 'Command line':
+1. Open a terminal window. On Windows use "Command line" or "cmd", open it via Start Menu > 'Command line':
 
-   ![Start cmd](./static/img/pixi_windows_startl.png)
+   ![Start cmd](./static/img/pixi_windows_start_cmd.png)
 
 2. Navigate to the directory where you downloaded the course materials using the following command:
 
@@ -69,7 +69,7 @@ For Windows users, accept the default installation guidelines:
    __!__ `FOLDER_PATH_TO_COURSE_MATERIAL` should be replaced by the path to the
 folder containing the downloaded course materials (e.g. in the example it is `C:/Users/yourusername/Documents/{{ repository }}`)
 
-  Type the command and press `ENTER` to execute it. 
+   Type the command and press `ENTER` to execute it. 
 
 3. Create the environment and install the course dependencies:
 
@@ -80,7 +80,7 @@ folder containing the downloaded course materials (e.g. in the example it is `C:
    Type the command and press `ENTER` to execute it. 
 
 Output will be printed and if no error occurs and you see `✔ The default environment has been installed.`, you have the environment configured with all packages installed. 
-This may take a couple of minutes.
+This may take a couple of minutes to download.
 
 When finished, keep the terminal window open (or reopen it). Execute the following commands to check your installation:
 
@@ -103,7 +103,19 @@ To get out of the Python session, type:
 quit
 ```
 
-__FAQ__ What if I get following Warning on outdate pixi version?
+__FAQ__ What if I get an error about not finding `pixi.toml`?
+
+When you see the following error message after running `pixi install`:
+
+```
+Error:   × could not find pixi.toml or pyproject.toml with tool.pixi at directory ...
+```
+
+Then you are not running `pixi install` from the root of the course materials
+directory. Check again where you downloaded the materials, and ensure you
+navigate (`cd`) to the correct location (see step 2 above).
+
+__FAQ__ What if I get a warning about outdated pixi version?
 
 When you see the following message after running `pixi install`:
 ```
@@ -118,7 +130,7 @@ Stop the setup (CTRL-C), run the update `pixi self-update` command before doing 
 
 ## 3. Test your configuration
 
-To check if your packages are properly installed, open the Conda Terminal again (see above) and navigate to the course directory:
+To check if your packages are properly installed, open the terminal again (see above) and navigate to the course directory:
 
 ```
 cd FOLDER_PATH_TO_COURSE_MATERIAL
