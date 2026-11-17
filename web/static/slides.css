@@ -148,4 +148,9 @@ code {
 	border-radius: 4px;
 }
 
-
+.red {
+  color: red;
+}
+.green {
+  color: green;
+}
