@@ -2,7 +2,7 @@
 
 This repo contains the source code for the workshop (the notebooks with full
 content) as it is being developed. For the actual course repo, see for
-example [DS-python-geospatial](https://github.com/jorisvandenbossche/DS-python-geospatial).
+example [DS-python-geospatial](https://github.com/plovercode/DS-python-geospatial).
 
 ## Introduction
 
