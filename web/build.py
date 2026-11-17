@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "jinja2",
+#   "click",
+# ]
+# ///
+
 from pathlib import Path
 import shutil
 
