@@ -1,15 +1,23 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "jinja2",
+#   "click",
+# ]
+# ///
+
 from pathlib import Path
 import shutil
 
 import click
 from jinja2 import FileSystemLoader, Environment
-import toml
+import tomllib
 
 
 def _load_config(file_path):
     """Load the config from a toml file"""
-    with open(file_path, "r") as config:
-        configuration = toml.load(config)
+    with open(file_path, "rb") as config:
+        configuration = tomllib.load(config)
     return configuration
 
 
@@ -42,7 +50,7 @@ def create_web(config_file, templates, static, output_path):
     # check existence of required configuration settings for the web elements
     config = _load_config(config_file)
     required_config = ["title", "dates", "organisation", "repository",
-                       "hackmd", "googleform", "conda_environment"]
+                       "hackmd", "googleform", "pixi_environment"]
     assert set(required_config).issubset(config.keys())
 
     # prepare output folder
