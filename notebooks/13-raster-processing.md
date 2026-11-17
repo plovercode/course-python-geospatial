@@ -226,7 +226,7 @@ The digital elevation model (DEM) can be downloaded via the [governmental websit
 </div>
 
 ```{code-cell} ipython3
-dem_zwalm_file = "data/DHMVIIDSMRAS5m_k30/GeoTIFF/DHMVIIDSMRAS5m_k30.tif" 
+dem_zwalm_file = "data/DHMVIIDSMRAS5m_k30_LB72/GeoTIFF/DHMVIIDSMRAS5m_k30.tif" 
 ```
 
 ```{code-cell} ipython3
@@ -1165,7 +1165,7 @@ ax.set_aspect("equal")
 
 # Extracting values from rasters based on vector data
 
-The **rasterstats** package provides methods to calculate summary statistics of geospatial raster datasets based on vector geometries (https://github.com/perrygeo/python-rasterstats)
+The **exactextract** package provides methods to calculate summary statistics of geospatial raster datasets based on vector geometries (https://github.com/isciences/exactextract)
 
 +++
 
@@ -1196,24 +1196,23 @@ img.axes.set_aspect("equal")
 Given this raster of the elevation, we might want to know the elevation at a certain location or for each country.
 For the countries example, we want to extract the pixel values that fall within a country polygon, and calculate a statistic for it, such as the mean or the maximum.
 
-Such functionality to extract information from a raster for given vector data is provided by the rasterstats package.
+Such functionality to extract information from a raster for given vector data is provided by the exactextract package.
 
 ```{code-cell} ipython3
-import rasterstats
+from exactextract import exact_extract
 ```
 
-For extracting the pixel values for polygons, we use the `zonal_stats` function, passing it the GeoSeries, the path to the raster file, and the method to compute the statistics.
+For extracting the pixel values for polygons, we use the `exact_extract` function, passing it the raster, the GeoDataFrame, and the statistics to compute. Contrary to a regular pixel-center approach, `exactextract` takes the fraction of each pixel covered by the polygon into account.
 
 ```{code-cell} ipython3
-result = rasterstats.zonal_stats(countries.geometry, dem_geotiff,
-                                 stats=['min', 'mean', 'max'], 
-                                 nodata=-999)
+dem = xr.open_dataarray(dem_geotiff).sel(band=1).rio.write_nodata(-999)
+result = exact_extract(dem, countries, ['min', 'mean', 'max'], output="pandas")
 ```
 
 The results can be assigned to new columns:
 
 ```{code-cell} ipython3
-countries[['min', 'max', 'mean']] = pd.DataFrame(result)
+countries[['min', 'max', 'mean']] = result
 ```
 
 ```{code-cell} ipython3
@@ -1226,12 +1225,15 @@ And then we can sort by the average elevation of the country:
 countries.sort_values('mean', ascending=False).head()
 ```
 
-For points, a similar function called `point_query` can be used (specifying the interpolation method):
+For points, we can directly use xarray instead. Elevation is a continuous variable, so we interpolate the raster (bilinear by default) at the point locations with `interp()`. Passing the coordinates as `DataArray`s sharing a common dimension (here `point`) makes xarray select pointwise (one value per city) instead of returning a grid of all x/y combinations.
+
+__Note__ For discrete data (e.g. land cover classes), interpolating makes no sense. Use `.sel(..., method="nearest")` to get the value of the nearest pixel instead:
 
 ```{code-cell} ipython3
-cities["elevation"] = rasterstats.point_query(cities.geometry, 
-                                              dem_geotiff, interpolate='bilinear',
-                                              nodata=-999)
+cities["elevation"] = dem.where(dem != -999).interp(
+    x=xr.DataArray(cities.geometry.x, dims="point"),
+    y=xr.DataArray(cities.geometry.y, dims="point"),
+).values
 ```
 
 ```{code-cell} ipython3
