@@ -247,7 +247,7 @@ herstappe.rio.resolution()
 herstappe.x[1] - herstappe.x[0], herstappe.y[1] - herstappe.y[0]
 ```
 
-- Spatial extent (bounding box) of the data. [Xarray translates](https://corteva.github.io/rioxarray/stable/getting_started/getting_started.html) the the coordinates info and spatial extent:
+- Spatial extent (bounding box) of the data. [Xarray translates](https://vylor.github.io/rioxarray/stable/getting_started/getting_started.html) the the coordinates info and spatial extent:
 
     >  The x and y coordinates are generated automatically from the file’s geoinformation, shifted to the center of each pixel.
     

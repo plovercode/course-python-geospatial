@@ -52,7 +52,7 @@ ds
 
 **REMEMBER**: <br>
 
-xarray provides reading function for different formats with the `open_dataset` and `open_dataarray` functions. For GIS formats such as geotiff and other GDAL readable raster data, the rasterio engine (`engine="rasterio"`) is available after the installation of [rioxarray](https://corteva.github.io/rioxarray/stable/). NetCDF-alike data formats can also be loaded using the `open_dataset()` function using a NetCDF-compatible engine, e.g. `netcdf` or `h5netcdf`. The netcdf-engine will be _guessed_ by default.
+xarray provides reading function for different formats with the `open_dataset` and `open_dataarray` functions. For GIS formats such as geotiff and other GDAL readable raster data, the rasterio engine (`engine="rasterio"`) is available after the installation of [rioxarray](https://vylor.github.io/rioxarray/stable/). NetCDF-alike data formats can also be loaded using the `open_dataset()` function using a NetCDF-compatible engine, e.g. `netcdf` or `h5netcdf`. The netcdf-engine will be _guessed_ by default.
 
 </div>
 

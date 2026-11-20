@@ -44,7 +44,7 @@ In the previous notebooks, we already used `rasterio` (https://rasterio.readthed
 
 In addition, rasterio provides a Python API to perform some GIS raster operations (clip, mask, warp, merge, transformation,...) and can be used to only load a subset of a large dataset into memory. However, the main complexity in using `rasterio`, is that the spatial information is decoupled from the data itself (i.e. the numpy array). This means that you need to keep track and organize the extent and metadata throughout the operations (e.g. the "transform") and you need to keep track of what each dimension represents (y-first, as arrays are organized along rows first). Notebook [91_package_rasterio](./91_package_rasterio.ipynb) goes into more depth on the rasterio package itself. 
 
-Enter `rioxarray` (https://corteva.github.io/rioxarray/stable/index.html), which extends xarray with geospatial functionalities powered by rasterio.
+Enter `rioxarray` (https://vylor.github.io/rioxarray/stable/), which extends xarray with geospatial functionalities powered by rasterio.
 
 ```{code-cell} ipython3
 import rioxarray
@@ -304,7 +304,7 @@ catchment.to_file("./data/zwalmbekken.geojson", driver="GeoJSON")
 geopandas.read_file("./data/zwalmbekken.geojson").plot()
 ```
 
-1. Clip using rioxarray (rasterio)
+_1. Clip using rioxarray (rasterio)_
 
 +++
 
@@ -338,7 +338,7 @@ img = clipped.plot.imshow(
 img.axes.set_aspect("equal")
 ```
 
-2. (optional) Using GDAL CLI
+_2. (optional) Using GDAL CLI_
 
 +++
 
@@ -1169,7 +1169,7 @@ The **rasterstats** package provides methods to calculate summary statistics of 
 
 **! Manual download needed !** <br>
 
-The data can be downloaded from the EEA at [download link](https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO5/TOPO/ETOPO5/ETOPO5.DAT) and save the file in the `data` subdirectory. The file will be available in the subdirectory `data/ETOPO5.DAT`, next to an already provided `data/etopo5.vrt` file that translates the custom `.DAT` format into a rasterio/DGDAL-readable raster.
+The data can be downloaded from the NOAA at [download link](https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO5/TOPO/ETOPO5/ETOPO5.DAT) and save the file in the `data` subdirectory. The file will be available in the subdirectory `data/ETOPO5.DAT`, next to an already provided `data/etopo5.vrt` file that translates the custom `.DAT` format into a rasterio/DGDAL-readable raster.
 
 </div>
 
