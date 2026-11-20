@@ -65,7 +65,7 @@ The data with the extension `nc` is a NetCDF format. NetCDF (Network Common Data
 
 +++
 
-__Note:__ As the data is in a [OPeNDAP server](https://en.wikipedia.org/wiki/OPeNDAP), we could also load the NETCDF data directly without downloading anything. This would require us to add the `netcdf4` package in our conda environment
+__Note:__ As the data is in a [OPeNDAP server](https://en.wikipedia.org/wiki/OPeNDAP), we could also load the NETCDF data directly without downloading anything. This would require us to add the `netcdf4` package in our pixi environment
 
 +++
 

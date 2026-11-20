@@ -1,0 +1,11 @@
+<VRTDataset rasterXSize="4320" rasterYSize="2160">
+  <SRS>EPSG:4326</SRS>
+  <GeoTransform>-0.0416666667, 0.0833333333, 0, 90.0416666667, 0, -0.0833333333</GeoTransform>
+  <VRTRasterBand dataType="Int16" band="1" subClass="VRTRawRasterBand">
+    <SourceFilename relativeToVRT="1">ETOPO5.DAT</SourceFilename>
+    <ImageOffset>0</ImageOffset>
+    <PixelOffset>2</PixelOffset>
+    <LineOffset>8640</LineOffset>
+    <ByteOrder>MSB</ByteOrder>
+  </VRTRasterBand>
+</VRTDataset>
