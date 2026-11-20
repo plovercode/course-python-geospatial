@@ -31,6 +31,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import cmocean
+
+%matplotlib inline
 ```
 
 ## `xarray.Dataset` for multiple variables
@@ -50,7 +52,7 @@ ds
 
 **REMEMBER**: <br>
 
-xarray provides reading function for different formats with the `open_dataset` and `open_dataarray` functions. For GIS formats such as geotiff and other GDAL readable raster data, the rasterio engine (`engine="rasterio"`) is available after the installation of [rioxarray](https://corteva.github.io/rioxarray/stable/). NetCDF-alike data formats can also be loaded using the `open_dataset()` function using a NetCDF-compatible engine, e.g. `netcdf` or `h5netcdf`. The netcdf-engine will be _guessed_ by default.
+xarray provides reading function for different formats with the `open_dataset` and `open_dataarray` functions. For GIS formats such as geotiff and other GDAL readable raster data, the rasterio engine (`engine="rasterio"`) is available after the installation of [rioxarray](https://vylor.github.io/rioxarray/stable/). NetCDF-alike data formats can also be loaded using the `open_dataset()` function using a NetCDF-compatible engine, e.g. `netcdf` or `h5netcdf`. The netcdf-engine will be _guessed_ by default.
 
 </div>
 
@@ -734,4 +736,8 @@ For example:
 ```{code-cell} ipython3
 gent_ds["ndvi"] = (gent_ds["b8"] - gent_ds["b4"])/(gent_ds["b8"] + gent_ds["b4"])
 gent_ds.to_array(dim="layer")
+```
+
+```{code-cell} ipython3
+
 ```

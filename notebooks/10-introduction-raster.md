@@ -191,17 +191,17 @@ If we use `xarray.DataArray` to wrap this NumPy array, we can keep the data and 
 
 +++
 
-To quickly scan the spatial metadata of a Raster data file, let's use the [`gdalinfo` command](https://gdal.org/programs/gdalinfo.html#gdalinfo). 
+To quickly scan the spatial metadata of a Raster data file, let's use the [`gdal raster info` command](https://gdal.org/en/stable/programs/gdal_raster_info.html). 
 
-> The `gdalinfo` command lists information about a raster dataset.
+> The `gdal raster info` command lists information about a raster dataset.
 
 It is not a Python command, but a program that need to be run from the terminal (aka command line). Using a small Jupyter notebook - `!` trick, we can use it within the notebook as well:
 
 ```{code-cell} ipython3
-!gdalinfo -mm ./data/herstappe/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff
+!gdal raster info ./data/herstappe/raster/2020-09-17_Sentinel_2_L1C_True_color.tiff
 ```
 
-Important information we get from the `gdalinfo` command are 
+Important information we get from the `gdal raster info` command are 
 
 * Coordinate reference system (CRS), see also [02-coordinate-reference-systems notebook](./02-coordinate-reference-systems.ipynb).
 * Number of bands in the data set: A data set can contain one (single) or more (multi) layers (bands).
@@ -247,7 +247,7 @@ herstappe.rio.resolution()
 herstappe.x[1] - herstappe.x[0], herstappe.y[1] - herstappe.y[0]
 ```
 
-- Spatial extent (bounding box) of the data. [Xarray translates](https://corteva.github.io/rioxarray/stable/getting_started/getting_started.html) the the coordinates info and spatial extent:
+- Spatial extent (bounding box) of the data. [Xarray translates](https://vylor.github.io/rioxarray/stable/getting_started/getting_started.html) the the coordinates info and spatial extent:
 
     >  The x and y coordinates are generated automatically from the file’s geoinformation, shifted to the center of each pixel.
     
@@ -271,3 +271,7 @@ open source Swiss Army knife for raster and vector geospatial data handling. GDA
 You can run a CLI command inside a Jupyter Notebook by prefixing it with the `!` character.
 
 </div>
+
+```{code-cell} ipython3
+
+```

@@ -44,7 +44,7 @@ In the previous notebooks, we already used `rasterio` (https://rasterio.readthed
 
 In addition, rasterio provides a Python API to perform some GIS raster operations (clip, mask, warp, merge, transformation,...) and can be used to only load a subset of a large dataset into memory. However, the main complexity in using `rasterio`, is that the spatial information is decoupled from the data itself (i.e. the numpy array). This means that you need to keep track and organize the extent and metadata throughout the operations (e.g. the "transform") and you need to keep track of what each dimension represents (y-first, as arrays are organized along rows first). Notebook [91_package_rasterio](./91_package_rasterio.ipynb) goes into more depth on the rasterio package itself. 
 
-Enter `rioxarray` (https://corteva.github.io/rioxarray/stable/index.html), which extends xarray with geospatial functionalities powered by rasterio.
+Enter `rioxarray` (https://vylor.github.io/rioxarray/stable/), which extends xarray with geospatial functionalities powered by rasterio.
 
 ```{code-cell} ipython3
 import rioxarray
@@ -81,10 +81,10 @@ data_raw.rio.nodata
 data_raw.rio.transform()
 ```
 
-For the remainder of this section, we work with the integer converted version:
+For the remainder of this section, we work with the integer converted version with 0 as the no-data value:
 
 ```{code-cell} ipython3
-data = (data_raw * 255).astype(np.uint8)
+data = (data_raw * 255).astype(np.uint8).rio.write_nodata(0)
 ```
 
 ## Reprojecting rasters
@@ -221,12 +221,12 @@ As example, we are using data from the Zwalm river area in Flanders.
 
 **! Manual download needed !** <br>
 
-The digital elevation model (DEM) can be downloaded via the [governmental website](https://download.vlaanderen.be/product/936/configureer): choose number 30 on the map and then click "Downloaden". Finally extract the zip file in `/data` directory. Inside the `data`-directory, the file will be available in the subfolder `DHMVIIDSMRAS5m_k30/GeoTIFF/DHMVIIDSMRAS5m_k30.tif`.
+The digital elevation model (DEM) can be downloaded via the [governmental website](https://download.vlaanderen.be/product/936/configureer): choose number 30 on the map and then click "Downloaden". Finally extract the zip file in `/data` directory. Inside the `data`-directory, the file will be available in the subfolder `DHMVIIDSMRAS5m_k30_LB72/GeoTIFF/DHMVIIDSMRAS5m_k30.tif`.  
 
 </div>
 
 ```{code-cell} ipython3
-dem_zwalm_file = "data/DHMVIIDSMRAS5m_k30/GeoTIFF/DHMVIIDSMRAS5m_k30.tif" 
+dem_zwalm_file = "data/DHMVIIDSMRAS5m_k30_LB72/GeoTIFF/DHMVIIDSMRAS5m_k30.tif"
 ```
 
 ```{code-cell} ipython3
@@ -304,7 +304,7 @@ catchment.to_file("./data/zwalmbekken.geojson", driver="GeoJSON")
 geopandas.read_file("./data/zwalmbekken.geojson").plot()
 ```
 
-1. Clip using rioxarray (rasterio)
+_1. Clip using rioxarray (rasterio)_
 
 +++
 
@@ -338,18 +338,14 @@ img = clipped.plot.imshow(
 img.axes.set_aspect("equal")
 ```
 
-2. (optional) Using GDAL CLI
+_2. (optional) Using GDAL CLI_
 
 +++
 
 If we have the raster and vector files on disk, the [`gdal CLI`](https://gdal.org/programs/index.html) will be very fast to work with (note that GDAL automatically handles the CRS difference of the raster and vector).
 
 ```{code-cell} ipython3
-rm ./dem_masked_gdal.tiff
-```
-
-```{code-cell} ipython3
-!gdalwarp -cutline ./data/zwalmbekken.geojson -crop_to_cutline data/DHMVIIDSMRAS5m_k30/GeoTIFF/DHMVIIDSMRAS5m_k30.tif ./dem_masked_gdal.tiff
+! gdal raster clip --like ./data/zwalmbekken.geojson data/DHMVIIDSMRAS5m_k30_LB72/GeoTIFF/DHMVIIDSMRAS5m_k30.tif ./dem_masked_gdal.tiff
 ```
 
 ```{code-cell} ipython3
@@ -1173,7 +1169,7 @@ The **rasterstats** package provides methods to calculate summary statistics of 
 
 **! Manual download needed !** <br>
 
-The data can be downloaded from the EEA at [download link](https://www.eea.europa.eu/data-and-maps/data/world-digital-elevation-model-etopo5/zipped-dem-geotiff-raster-geographic-tag-image-file-format-raster-data/zipped-dem-geotiff-raster-geographic-tag-image-file-format-raster-data/at_download/file), then extract the zip file and save the file in the `data` subdirectory. After unzipping, the file will be available in the subdirectory `data/dem_geotiff/alwdgg.tif`.
+The data can be downloaded from the NOAA at [download link](https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO5/TOPO/ETOPO5/ETOPO5.DAT) and save the file in the `data` subdirectory. The file will be available in the subdirectory `data/ETOPO5.DAT`, next to an already provided `data/etopo5.vrt` file that translates the custom `.DAT` format into a rasterio/DGDAL-readable raster.
 
 </div>
 
@@ -1185,7 +1181,16 @@ cities = geopandas.read_file("./data/ne_110m_populated_places.zip")
 ```
 
 ```{code-cell} ipython3
-dem_geotiff = "data/DEM_geotiff/alwdgg.tif"
+# Use GDAL to match longitudes currently on 0–360 (bounds −0.04 to 359.96) instead of −180 to 180 as used by the overlays country and city data.
+!gdal raster reproject --config CENTER_LONG=0 --dst-crs EPSG:4326 --bbox -180,-90,180,90 data/etopo5.vrt data/etopo5.tif --overwrite
+```
+
+```{code-cell} ipython3
+dem_geotiff = "data/etopo5.tif"
+```
+
+```{code-cell} ipython3
+xr.open_dataarray(dem_geotiff).sel(band=1)
 ```
 
 ```{code-cell} ipython3
@@ -1277,124 +1282,6 @@ gent = geopandas.GeoDataFrame.from_features(json.loads(r.content), crs="epsg:313
 gent.plot()
 ```
 
-# Cloud: only download what you need
-
-Rasterio/rioxarray only reads the data from disk that is requested to overcome loading entire data sets into memory. The same applies to downloading data, overcoming entire downloads when only a fraction is required (when the online resource supports this). An example is https://zenodo.org/record/2654620, which is available as [Cloud Optimized Geotiff (COG)](https://www.cogeo.org/). Also cloud providers (AWS, google,...) do support COG files, e.g. [Landstat images](https://docs.opendata.aws/landsat-pds/readme.html).
-
-These files are typically very large to download, whereas we might only need a small subset of the data. COG files support downloading a subset of the data you need using a masking approach.
-
-Let's use the Averbode nature reserve data as an example, available at the URL: http://s3-eu-west-1.amazonaws.com/lw-remote-sensing/cogeo/20160401_ABH_1_Ortho.tif
-
 ```{code-cell} ipython3
-averbode_cog_rgb = 'http://s3-eu-west-1.amazonaws.com/lw-remote-sensing/cogeo/20160401_ABH_1_Ortho.tif'
+
 ```
-
-Check the metadata, without downloading the data itself:
-
-```{code-cell} ipython3
-averbode_data = xr.open_dataarray(averbode_cog_rgb, engine="rasterio")
-```
-
-```{code-cell} ipython3
-averbode_data
-```
-
-Downloading the entire data set would be 37645*35405\*4 pixels of 4 byte, so more or less 5.3 GByte
-
-```{code-cell} ipython3
-37645*35405*4 / 1e9  # Gb
-```
-
-```{code-cell} ipython3
-averbode_data.size  / 1e9  # Gb
-```
-
-Assume that we have a study area which is much smaller than the total extent of the available image:
-
-```{code-cell} ipython3
-left, bottom, right, top = averbode_data.rio.bounds()
-```
-
-```{code-cell} ipython3
-averbode_study_area = geopandas.read_file("./data/averbode/study_area.geojson")
-ax = averbode_study_area.plot();
-ax.set_xlim(left, right);
-ax.set_ylim(bottom, top);
-```
-
-In the case of COG data, the data can sometimes be requested on different resolution levels when stored as such. So, to get a very broad overview of the data, we can request the coarsest resolution by resampling and download the data at the resampled resolution:
-
-```{code-cell} ipython3
-with rasterio.open(averbode_cog_rgb) as src:
-    # check available overviews for band 1
-    print(f"Available resolutions are {src.overviews(1)}")
-```
-
-```{code-cell} ipython3
-averbode_64 = rioxarray.open_rasterio(averbode_cog_rgb, overview_level=5)
-```
-
-<div class="alert alert-info">
-
-**REMEMBER**:
-
-`rioxarray.open_rasterio` is used here instead of `xr.open_dataarray(..., engine="rasterio")` as the latter does not support the `overview_level` argument. In general, both should be comparable in behaviour.
-    
-</div>
-
-```{code-cell} ipython3
-averbode_64.size / 1e6  # Mb
-```
-
-```{code-cell} ipython3
-averbode_64.rio.resolution()
-```
-
-Compare the thumbnail version of the data with our study area:
-
-```{code-cell} ipython3
-fig, ax = plt.subplots()
-averbode_64.sel(band=[1, 2, 3]).plot.imshow(ax=ax)
-averbode_study_area.plot(ax=ax, color='None', edgecolor='red', linewidth=2);
-```
-
-Downloading the entire data file would be overkill. Instead, we only want to download the data of the study area. This can be done with the `clip()` method using the `from_disk` option. 
-The resulting data set will still be around 100MB and will take a bit of time to download, but this is only a fraction of the original data file:
-
-```{code-cell} ipython3
-%%time
-# Only run this cell when sufficient band width ;-)
-averbode_subset = averbode_data.rio.clip(averbode_study_area.geometry, from_disk=True)
-```
-
-```{code-cell} ipython3
-averbode_subset.size / 1e6  # Mb
-```
-
-```{code-cell} ipython3
-averbode_subset.sel(band=[1, 2, 3]).plot.imshow(figsize=(10, 10))
-```
-
-The rasterio way:
-
-```python
-output_file = "./averbode_orthophoto.tiff"
-
-# Only run this cell when sufficient band width ;-)
-with rasterio.open(averbode_cog_rgb) as averbode_rgb:
-    averbode_rgb_image, averbode_rgb_transform = rasterio.mask.mask(averbode_rgb, averbode_study_area.geometry, crop=True)
-    averbode_rgb_profile = averbode_rgb.profile  
-
-    averbode_rgb_profile.update({"driver": "GTiff",
-                                 "height": averbode_rgb_image.shape[1],
-                                 "width": averbode_rgb_image.shape[2],
-                                 "transform": averbode_rgb_transform
-                                })
-    
-    with rasterio.open(output_file, "w", **averbode_rgb_profile) as dest:
-        dest.write(averbode_rgb_image)
-```
-
-+++
-
-Thanks to https://geohackweek.github.io/raster/04-workingwithrasters/ for the inspiration
