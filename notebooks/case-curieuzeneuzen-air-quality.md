@@ -552,7 +552,7 @@ raster
 raster.plot(vmin=1, vmax=44)
 ```
 
-The goal is now to query from the raster file the value of the land cover class for each of the measurement locations. This can be done with the `rasterstats` package and with the point locations of our GeoDataFrame. But first, we need to ensure that both our datasets are using the same CRS. In this case, it's easiest to reproject the point locations to the CRS of the raster file.
+The goal is now to query from the raster file the value of the land cover class for each of the measurement locations. This can be done with xarray and with the point locations of our GeoDataFrame. But first, we need to ensure that both our datasets are using the same CRS. In this case, it's easiest to reproject the point locations to the CRS of the raster file.
 
 <div class="alert alert-success">
 
@@ -586,18 +586,17 @@ gdf_raster.head()
 
 **EXERCISE**:
 
-* Use the `rasterstats.point_query()` function to determine the value of the raster for each of the points in the dataframe. Remember to use `gdf_raster` for passing the geometries.
-* Because we have a raster file with discrete classes, ensure to pass `interpolate="nearest"` (the default "bilinear" will result in floats with decimals, not preserving the integers representing discrete classes).
+* Use the xarray `sel()` method with `method="nearest"` to determine the value of the raster for each of the points in the dataframe. Remember to use `gdf_raster` for the coordinates.
+* Because we have a raster file with discrete classes, use the nearest pixel (interpolating, e.g. with `interp()`, will result in floats with decimals, not preserving the integers representing discrete classes).
 * Assign the result to a new column "land_use" in `gdf`.
 * Perform a `value_counts()` on this new column do get a quick idea of the new values obtained from the raster file.
 
-Note that the query operation can take a while. Don't worry if it runs for around 20 seconds!
     
     
 <details><summary>Hints</summary>
 
-* Don't forget to first import the `rasterstats` package.
-* The `point_query()` function takes as first argument the point geometries (this can be passed as a GeoSeries), and as second argument the path to the raster file (this will be opened by `rasterio` under the hood).
+* To select pointwise (instead of a grid of x and y combinations), pass the coordinates as `xarray.DataArray` objects sharing a common dimension, e.g. `xarray.DataArray(gdf_raster.geometry.x, dims="point")`.
+* The result is a DataArray; use `.values` to assign it to a column.
 
 </details>
 
@@ -606,13 +605,12 @@ Note that the query operation can take a while. Don't worry if it runs for aroun
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-import rasterstats
-```
-
-```{code-cell} ipython3
-:tags: [nbtutor-solution]
-
-gdf['land_use'] = rasterstats.point_query(gdf_raster.geometry, "data/CLC2018_V2020_20u1_flanders.tif", interpolate='nearest')
+gdf['land_use'] = raster.sel(
+    band=1,
+    x=xarray.DataArray(gdf_raster.geometry.x, dims="point"),
+    y=xarray.DataArray(gdf_raster.geometry.y, dims="point"),
+    method="nearest",
+).values
 ```
 
 ```{code-cell} ipython3
