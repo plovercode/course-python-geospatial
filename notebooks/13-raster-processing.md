@@ -1161,7 +1161,7 @@ ax.set_aspect("equal")
 
 # Extracting values from rasters based on vector data
 
-The **exactextract** package provides methods to calculate summary statistics of geospatial raster datasets based on vector geometries (https://github.com/isciences/exactextract)
+The **exactextract** package provides methods to calculate summary statistics of geospatial raster datasets based on vector geometries (https://github.com/isciences/exactextract / https://isciences.github.io/exactextract/).
 
 +++
 
@@ -1232,13 +1232,15 @@ countries.sort_values('mean', ascending=False).head()
 
 For points, we can directly use xarray instead. Elevation is a continuous variable, so we interpolate the raster (bilinear by default) at the point locations with `interp()`. Passing the coordinates as `DataArray`s sharing a common dimension (here `point`) makes xarray select pointwise (one value per city) instead of returning a grid of all x/y combinations.
 
+See https://docs.xarray.dev/en/latest/user-guide/interpolation.html#advanced-interpolation.
+
 __Note__ For discrete data (e.g. land cover classes), interpolating makes no sense. Use `.sel(..., method="nearest")` to get the value of the nearest pixel instead:
 
 ```{code-cell} ipython3
 cities["elevation"] = dem.where(dem != -999).interp(
     x=xr.DataArray(cities.geometry.x, dims="point"),
     y=xr.DataArray(cities.geometry.y, dims="point"),
-).values
+)
 ```
 
 ```{code-cell} ipython3

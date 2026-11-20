@@ -1156,11 +1156,3 @@ seaborn.boxplot(x="road_type", y="no2", data=subset, order=categories)
 ```
 
 This analysis confirms that the NO2 concentration is clearly related to traffic.
-
-```{code-cell} ipython3
-
-```
-
-```{code-cell} ipython3
-
-```
