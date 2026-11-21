@@ -595,7 +595,7 @@ gdf_raster.head()
     
 <details><summary>Hints</summary>
 
-* To select pointwise (instead of a grid of x and y combinations), pass the coordinates as `xarray.DataArray` objects sharing a common dimension, e.g. `xarray.DataArray(gdf_raster.geometry.x, dims="point")`.
+* To select pointwise (instead of a grid of x and y combinations), pass the coordinates as `xarray.DataArray` objects sharing a common dimension, e.g. `xarray.DataArray(gdf_raster.geometry.x, dims="point")`, see also [Vectorized indexing](https://docs.xarray.dev/en/stable/user-guide/indexing.html#vectorized-indexing)
 * The result is a DataArray; use `.values` to assign it to a column.
 
 </details>
