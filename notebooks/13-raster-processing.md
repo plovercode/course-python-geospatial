@@ -1234,14 +1234,20 @@ For points, we can directly use xarray instead. Elevation is a continuous variab
 
 See https://docs.xarray.dev/en/latest/user-guide/interpolation.html#advanced-interpolation.
 
-__Note__ For discrete data (e.g. land cover classes), interpolating makes no sense. Use `.sel(..., method="nearest")` to get the value of the nearest pixel instead:
-
 ```{code-cell} ipython3
 cities["elevation"] = dem.where(dem != -999).interp(
     x=xr.DataArray(cities.geometry.x, dims="point"),
     y=xr.DataArray(cities.geometry.y, dims="point"),
 )
 ```
+
+<div class="alert alert-info">
+
+__NOTE__
+   
+For discrete data (e.g. land cover classes), interpolating makes less sense to extract information from the nearest grid cells of interest. Use `.sel(..., method="nearest")` to get the value of the nearest pixel instead. This is also called [Vectorized Indexing](https://docs.xarray.dev/en/stable/user-guide/indexing.html#vectorized-indexing), where you supply ´DataArray()´ objects as indexers.
+
+</div>
 
 ```{code-cell} ipython3
 cities.sort_values(by="elevation", ascending=False).head()
