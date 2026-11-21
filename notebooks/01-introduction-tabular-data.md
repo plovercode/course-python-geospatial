@@ -56,7 +56,7 @@ A `DataFrame` is a 2-dimensional, **tablular data structure** comprised of rows 
 
 +++
 
-A DataFrame can store data of different types (including characters, integers, floating point values, categorical data and more) in columns. In pandas, we can check the data types of the columns with the `dtypes` attribute:
+A DataFrame can store data of different types (including strings (characters), integers, floating point values, categorical data and more) in columns. In pandas, we can check the data types of the columns with the `dtypes` attribute:
 
 ```{code-cell} ipython3
 countries.dtypes
@@ -146,6 +146,51 @@ With two Series objects:
 ```{code-cell} ipython3
 countries['gdp_md_est'] / countries['pop_est']
 ```
+
+<div style="border: 5px solid #3776ab; border-radius: 2px; padding: 2em;">
+
+## Python recap
+
+In Python, when you want to perform a certain operation on multiple values, this is typically done using a **for-loop**, looping over the values in a list:
+
+<p>
+
+```python
+values = [1, 2, 3, 4]
+result = []
+for val in values:
+    res = val ** 2
+    result.append(val)
+```
+
+</p>
+
+Or using the equivalent but shorter **list comprehension** syntax:
+
+<p>
+
+```python
+result = [val ** 2 for val in values]
+```
+
+</p>
+
+One of the typical features of scientific libraries such as NumPy and pandas, is that they provides functions and operations that are **vectorized**, i.e. they work **element-wise**:
+
+<p>
+
+```python
+values = np.array([1, 2, 3, 4])
+result = values ** 2
+```
+
+</p>
+
+This is often a lot faster (because of an optimized implementation under the hood), but also just easier to write and read!
+
+</div>
+
++++
 
 ### Aggregations (reductions)
 
@@ -303,7 +348,7 @@ Throughout the exercises in this course on vector data, we will work with severa
 Here, we start with the following datasets:
 
 - Information about the administrative districts of Paris: `paris_districts.csv`
-- Real-time (at the moment I downloaded them ..) information about the public bicycle sharing system in Paris (vélib, https://opendata.paris.fr/explore/dataset/stations-velib-disponibilites-en-temps-reel/information/): `paris_bike_stations.csv`
+- Real-time (at the moment we downloaded them ..) information about the public bicycle sharing system in Paris (vélib, https://opendata.paris.fr/explore/dataset/velib-disponibilite-en-temps-reel/): `paris_bike_stations.csv`
 
 +++
 
@@ -468,7 +513,7 @@ districts.head()
 
 **EXERCISE**:
 
-* Sort the `districts` DataFrame by the population number. Sort in such a way that the districts with the largest population are at the top of the DataFrame (Tip: check the help of the function!)
+* Sort the `districts` DataFrame by the population density. Sort in such a way that the districts with the largest population density are at the top of the DataFrame (Tip: check the help of the function!)
 
 <details>
   <summary>Hints</summary>
@@ -483,7 +528,7 @@ districts.head()
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-districts.sort_values(by="population", ascending=False)
+districts.sort_values(by="population_density", ascending=False)
 ```
 
 <div class="alert alert-success">
@@ -584,7 +629,7 @@ The plot produced by pandas with the `.plot()` method, is actually created using
 
 However, matplotlib is is also a *huge* library, with which you can plot anything you want and customize every detail of the plot ... if you know how to do this. 
 
-So in this course, we are mostly going to use matplotlib through a convenience layer, such as the pandas `.plot()` method, or a helper library like `seaborn`. But you'll some basic matplotlib techniques as well.
+So in this course, we are mostly going to use matplotlib through a convenience layer, such as the pandas `.plot()` method, or a helper library like `seaborn`. But you'll learn some basic matplotlib techniques as well.
 
 +++
 

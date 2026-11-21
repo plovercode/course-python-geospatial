@@ -119,14 +119,9 @@ The `.crs` attribute returns a `pyproj.CRS` object. To specify a CRS, we typical
   
 - **Well-Know-Text (WKT)** representation
 
-- In older software and datasets, you might also encounter a "`proj4` string" representation:
-  
-  Example: `+proj=longlat +datum=WGS84 +no_defs`
+- In older software and datasets, you might also encounter a "`proj4` string" representation, such as `+proj=longlat +datum=WGS84 +no_defs`. This is however no longer recommended.
 
-  This is however no longer recommended.
-
-
-See eg https://epsg.io/4326
+See eg https://spatialreference.org/ref/epsg/4326/
 
 Under the hood, GeoPandas uses the `pyproj` / `PROJ` libraries to deal with the re-projections.
 
@@ -294,7 +289,7 @@ However, typically, your data will not come in Web Mercator (`EPSG:3857`) and yo
 
 * Making a simple plot of a GeoDataFrame can be done with the `.plot()` method. This returns a matplotlib axes object.
 * The marker size can be specified with the `markersize` keyword if the `.plot()` method.
-* To add a background map, use the `contextily.add_basemap()` function. It takes the matplotlib `ax` to which to add a map as the first argument.
+* To add a background map, use the `tiles=True` option in the `plot()` method, or use the `contextily.add_basemap()` function. It takes the matplotlib `ax` to which to add a map as the first argument.
 
 </details>
 
@@ -319,7 +314,12 @@ stations.head()
 :tags: [nbtutor-solution]
 
 # Plot the stations with a background map
-import contextily
-ax = stations_webmercator.plot(markersize=5)
-contextily.add_basemap(ax)
+stations_webmercator.plot(markersize=5, tiles=True)
+
+# or explicitly:
+# import contextily
+# ax = stations_webmercator.plot(markersize=5, tiles=True)
+# contextily.add_basemap(ax)
 ```
+
+Note: when using the `tiles=True` convenience short-cut, the geopandas' `.plot()` method will actually handle a different CRS for you under the hood, by specifying the CRS of the GeoDataFrame to contextily, and letting contextily reproject the images from WebMercator to that projection. However, this warps the images and will typically result in a less sharp result. For this reason, it is still recommended to reproject your data to WebMercator for the best result.
