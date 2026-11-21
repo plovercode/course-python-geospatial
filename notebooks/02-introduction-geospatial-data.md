@@ -30,9 +30,9 @@ import geopandas
 
 +++
 
-Geospatial data is often available from specific GIS file formats or data stores, like ESRI shapefiles, GeoJSON files, geopackage files, PostGIS (PostgreSQL) database, ...
+Geospatial data is often available from specific GIS file formats or data stores, like ESRI Shapefiles, GeoJSON files, GeoPackage files, PostGIS (PostgreSQL) database, ...
 
-We can use the GeoPandas library to read many of those GIS file formats (relying on the `pyogrio` library under the hood, which is an interface to GDAL/OGR), using the `geopandas.read_file` function.
+We can use the GeoPandas library to read many of those GIS file formats (relying on the `pyogrio` library under the hood, which is an interface to GDAL/OGR), using the `geopandas.read_file()` function.
 
 For example, let's start by reading a shapefile with all the countries of the world (adapted from http://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-admin-0-countries/, zip file is available in the `/data` directory), and inspect the data:
 
@@ -94,10 +94,10 @@ countries.geometry.area
 
 **It's still a DataFrame**, so we have all the Pandas functionality available to use on the geospatial dataset, and to do data manipulations with the attributes and geometry information together.
 
-For example, we can calculate average population number over all countries (by accessing the 'pop_est' column, and calling the `mean` method on it):
+For example, we can calculate total population number over all countries (by accessing the 'pop_est' column, and calling the `sum()` method on it):
 
 ```{code-cell} ipython3
-countries['pop_est'].mean()
+countries['pop_est'].sum()
 ```
 
 Or, we can use boolean filtering to select a subset of the dataframe based on a condition:
@@ -167,7 +167,7 @@ print(rivers.geometry[0])
 
 ### The `shapely` library
 
-The individual geometry objects are provided by the [`shapely`](https://shapely.readthedocs.io/en/stable/) library
+The individual geometry objects are provided by the [`shapely`](https://shapely.readthedocs.io/en/stable/) library:
 
 ```{code-cell} ipython3
 type(countries.geometry[0])
@@ -231,12 +231,12 @@ See the [visualization-02-geopandas.ipynb](visualization-02-geopandas.ipynb) not
 
 ## Let's practice!
 
-Throughout the exercises in this course, we will work with several datasets about the city of Paris.
+Throughout the exercises in this course on geopandas, we will work with several datasets about the city of Paris.
 
 Here, we start with the following datasets:
 
-- The administrative districts of Paris (https://opendata.paris.fr/explore/dataset/quartier_paris/): `paris_districts_utm.geojson`
-- Real-time (at the moment I downloaded them ..) information about the public bicycle sharing system in Paris (vélib, https://opendata.paris.fr/explore/dataset/stations-velib-disponibilites-en-temps-reel/information/): `data/paris_bike_stations_mercator.gpkg`
+- The administrative districts of Paris (https://opendata.paris.fr/explore/dataset/quartier_paris/): `data/paris_districts_utm.geojson`
+- Real-time (at the moment we downloaded them ..) information about the public bicycle sharing system in Paris (vélib, https://opendata.paris.fr/explore/dataset/velib-disponibilite-en-temps-reel/): `data/paris_bike_stations_mercator.gpkg`
 
 Both datasets are provided as spatial datasets using a GIS file format.
 
@@ -307,28 +307,29 @@ stations.plot(figsize=(12,6))  # or .explore()
 
 A plot with just some points can be hard to interpret without any spatial context. We have seen that we can use the `explore()` method to easily get an interactive figure that by default includes a background map. But also for the static matplotlib-based plot, it can be useful to add such a base map, and that's what we will learn in the next excercise.
 
-We are going to make use of the [contextily](https://contextily.readthedocs.io/en/latest/index.html) package. The `add_basemap()` function of this package makes it easy to add a background web map to our plot. We begin by plotting our data first, and then pass the matplotlib axes object (returned by dataframe's `plot()` method) to the `add_basemap()` function. `contextily` will then download the web tiles needed for the geographical extent of your plot.
-
-
 <div class="alert alert-success">
 
 **EXERCISE**:
 
-* Import `contextily`.
-* Re-do the figure of the previous exercise: make a plot of all the points in `stations`, but assign the result to an `ax` variable.
+* Re-do the figure of the previous exercise: make a plot of all the points in `stations`.
 * Set the marker size equal to 5 to reduce the size of the points (use the `markersize` keyword of the `plot()` method for this).
-* Use the `add_basemap()` function of `contextily` to add a background map: the first argument is the matplotlib axes object `ax`.
+* Enable adding a background map by specifying `tiles=True`.
 
 </div>
 
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-import contextily
+ax = stations.plot(figsize=(12,6), markersize=5, tiles=True)
+ax.set_axis_off()
 ```
 
+Under the hood, the `tiles=True` option is using the [contextily](https://contextily.readthedocs.io/en/latest/index.html) package. The `contextily.add_basemap()` function of this package makes it easy to add a background web map to our plot (and geopandas' `plot()` calls this under the hood when specifying `tiles=True`).
+
+When using `contextily` explicitly, we begin by plotting our data first, and then pass the matplotlib axes object (returned by dataframe's `plot()` method) to the `add_basemap()` function. `contextily` will then download the web tiles needed for the geographical extent of your plot:
+
 ```{code-cell} ipython3
-:tags: [nbtutor-solution]
+import contextily
 
 ax = stations.plot(figsize=(12,6), markersize=5)
 contextily.add_basemap(ax)
@@ -378,7 +379,7 @@ stations.plot(figsize=(12, 6), column='available_bikes', legend=True)
 
 **EXERCISE**:
 
-Next, we will explore the dataset on the administrative districts of Paris (available as a GeoJSON file: "data/paris_districts_utm.geojson")
+Next, we will explore the dataset on the administrative districts of Paris (available as a GeoJSON file: `"data/paris_districts_utm.geojson"`)
 
 * Read the dataset into a GeoDataFrame called `districts`.
 * Check the first rows of the dataframe. What kind of geometries does this dataset contain?
