@@ -98,7 +98,7 @@ or tables with Latex..
 
 +++
 
-Code can also be incorporated, but than just to illustrate:
+Code can also be incorporated, but than just to illustrate and not to execute the code:
 
 +++
 
@@ -113,19 +113,14 @@ See also: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 
 +++
 
-## HTML
+__Headings of different sizes: section__
 
-+++
-
-You can also use HTML commands, just check this cell:
-<h3> html-adapted titel with &#60;h3&#62; </h3> <p></p>
-<b> Bold text &#60;b&#62; </b> of <i>or italic &#60;i&#62; </i>
-
-+++
-
-## Headings of different sizes: section
+```
+# Main title
+## section
 ### subsection
 #### subsubsection
+```
 
 +++
 
@@ -156,6 +151,9 @@ Cfr. any text editor
 
 ```{code-cell} ipython3
 import os
+```
+
+```{code-cell} ipython3
 os.mkdir
 ```
 
@@ -187,19 +185,10 @@ os.mkdir
 os.mkdir?
 ```
 
-<div class="alert alert-success">
-    <b>EXERCISE</b>: What happens if you put two question marks behind the command?
-</div>
-
-```{code-cell} ipython3
-import glob
-glob.glob??
-```
-
 ## *edit* mode vs *command* mode
 
-* *edit* mode means you're editing a cell, i.e. with your cursor inside a cell to type content -->  <font color="blue">blue colored border</font>
-* *command* mode means you're NOT editing(!), i.e. NOT with your cursor inside a cell to type content --> selected cell has a grey border
+* *edit* mode means you're editing a cell, i.e. with your cursor inside a cell to type content -->  <font color="blue">blue colored border</font> around the code cell itself
+* *command* mode means you're NOT editing(!), i.e. NOT with your cursor inside a cell to type content --> <font color="blue">blue colored border</font> around the code cell AND sidebar</font>
 
 To start editing, click inside a cell or 
 <img src="../img/notebook/enterbutton.png" alt="Key enter" style="width:150px">
@@ -223,14 +212,6 @@ Create a new cell below with the key B... when in *command* mode
 
 +++
 
-## CTRL + SHIFT + C
-
-+++
-
-Just do it!
-
-+++
-
 ## Trouble...
 
 +++
@@ -246,13 +227,7 @@ Just do it!
 
 +++
 
-* **Stackoverflow** is really, really, really nice!
-
-  http://stackoverflow.com/questions/tagged/python
-
-+++
-
-* Google search is with you!
+Use LLM models and Google search to troubleshoot.
 
 +++
 
