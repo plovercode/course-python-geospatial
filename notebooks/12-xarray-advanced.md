@@ -209,7 +209,7 @@ For these exercises, a subset of the data set focusing on Belgium has been prepa
 The dimensions are the `longitude`, `latitude` and `time`, which are each represented by a corresponding coordinate.
 
 ```{code-cell} ipython3
-era5 = xr.open_dataset("./data/era5-land-monthly-means_example.nc") # engine="netcdf4" is here optional
+era5 = xr.open_dataset("./data/era5-land-monthly-means_belgium.nc") # engine="netcdf4" is here optional
 era5
 ```
 
@@ -373,7 +373,7 @@ era5_renamed.plot.scatter(x="temperature_c", y="speed_of_sound_m_s")
 Let's start again from the ERA5 data set we worked with in the previous exercises, and rename the variables for convenience:
 
 ```{code-cell} ipython3
-era5 = xr.open_dataset("./data/era5-land-monthly-means_example.nc")
+era5 = xr.open_dataset("./data/era5-land-monthly-means_belgium.nc")
 mapping = {
     "sf": "snowfall_m",
     "sp": "pressure_pa",
@@ -485,7 +485,7 @@ era5_renamed.resample(time="1YE").median()  # 4M
 
 ```{code-cell} ipython3
 era5_renamed["temperature_k"].sel(latitude=51., longitude=4., method="nearest").plot.line(x="time");
-era5_renamed["temperature_k"].sel(latitude=51., longitude=4., method="nearest").resample(time="10YE").median().plot.line(x="time");
+era5_renamed["temperature_k"].sel(latitude=51., longitude=4., method="nearest").resample(time="3YE").median().plot.line(x="time");
 ```
 
 A similar, but different functionality is `rolling` to calculate rolling window aggregates:
@@ -519,7 +519,7 @@ __Note:__ Xarray adds a [`groupby_bins`](http://xarray.pydata.org/en/stable/gene
 Run this cell before doing the exercises, so the starting point is again the `era5_renamed` data set:
 
 ```{code-cell} ipython3
-era5 = xr.open_dataset("./data/era5-land-monthly-means_example.nc")
+era5 = xr.open_dataset("./data/era5-land-monthly-means_belgium.nc")
 mapping = {
     "sf": "snowfall_m",
     "sp": "pressure_pa",
@@ -639,7 +639,7 @@ Create a line plot showing the yearly average temperature in the y-axis and time
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-temp_mean = era5_renamed["temperature_k"].mean(dim=["latitude", "longitude"]).sel(time=slice("1981", "2020"))
+temp_mean = era5_renamed["temperature_k"].mean(dim=["latitude", "longitude"]).sel(time=slice("1981", "2025"))
 temp_mean.resample(time="YE").mean().plot.line(figsize=(12, 5))
 ```
 
