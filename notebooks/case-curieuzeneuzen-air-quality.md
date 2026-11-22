@@ -25,7 +25,7 @@ kernelspec:
 
 Air pollution remains a key environmental problem in an increasingly urbanized world. While concentrations of traffic-related pollutants like nitrogen dioxide (NO2) are known to vary over short distances, official monitoring networks remain inherently sparse, as reference stations are costly to construct and operate.
 
-The [**CurieuzeNeuzen**](https://curieuzeneuzen.be/curieuzeneuzen-vlaanderen-2018/) citizen science project collected a large, spatially distributed dataset that can complement official monitoring. In a first edition in 2016, in Antwerp, 2000 citizens were involved. This success was followed by a second edition in 2018 engaging 20.000 citizens across Flanders, a highly urbanized, industrialized and densely populated region in Europe. The participants measured the NO2 concentrations in front of their house using a low-cost sampler design (see picture below, where passive sampling tubes are attached using a panel to a window at the facade). 
+The [**CurieuzeNeuzen**](https://curieuzeneuzen.be/) citizen science project collected a large, spatially distributed dataset that can complement official monitoring. In a first edition in 2016, in Antwerp, 2000 citizens were involved. This success was followed by a second edition in 2018 engaging 20.000 citizens across Flanders, a highly urbanized, industrialized and densely populated region in Europe. The participants measured the NO2 concentrations in front of their house using a low-cost sampler design (see picture below, where passive sampling tubes are attached using a panel to a window at the facade). 
 
 Source: preprint paper at https://eartharxiv.org/repository/view/19/
 
@@ -304,7 +304,13 @@ We downloaded the publicly available municipality reference from geopunt.be ([Vo
 
 * Read the Shapefile with the municipalities into a variable called `muni`.
 * Inspect the data and do a quick plot.
-    
+
+<details><summary>Hints</summary>
+
+* Reading a spatial file format such as Shapefiles can be done using the `geopandas.read_file()` function.
+
+</details>
+
 </div>
 
 ```{code-cell} ipython3
@@ -364,7 +370,7 @@ gdf_lambert = gdf.to_crs("EPSG:31370")  # or .to_crs(muni.crs)
 gdf_lambert.head()
 ```
 
-The EPSG:31370 or "Belgian Lambert 72" (https://epsg.io/31370) is the local, projected CRS most often used in Belgium.
+The EPSG:31370 or "Belgian Lambert 72" (https://spatialreference.org/ref/epsg/31370/) is the local, projected CRS most often used in Belgium.
 
 +++
 
@@ -549,6 +555,7 @@ raster
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
+# -128 is used as fill value, so we set a minimum for the color scale
 raster.plot(vmin=1, vmax=44)
 ```
 
@@ -596,7 +603,6 @@ gdf_raster.head()
 <details><summary>Hints</summary>
 
 * To select pointwise (instead of a grid of x and y combinations), pass the coordinates as `xarray.DataArray` objects sharing a common dimension, e.g. `xarray.DataArray(gdf_raster.geometry.x, dims="point")`, see also [Vectorized indexing](https://docs.xarray.dev/en/stable/user-guide/indexing.html#vectorized-indexing)
-* The result is a DataArray; use `.values` to assign it to a column.
 
 </details>
 
@@ -610,7 +616,7 @@ gdf['land_use'] = raster.sel(
     x=xarray.DataArray(gdf_raster.geometry.x, dims="point"),
     y=xarray.DataArray(gdf_raster.geometry.y, dims="point"),
     method="nearest",
-).values
+)
 ```
 
 ```{code-cell} ipython3
@@ -774,7 +780,7 @@ For the exercise here, we don't want to select just the measurements in the muni
     
 * Create a new Shapely geometry, `gent_region`, that defines the bounding box of the Gent municipality.
 
-Check this section of the Shapely docs (https://shapely.readthedocs.io/en/latest/manual.html#constructive-methods) or experiment yourself to see which attribute is appropriate to use here (`convex_hull`, `envolope`, and `minimum_rotated_rectangle` all create a new polygon encompassing the original).
+Check this section of the Shapely docs (https://shapely.readthedocs.io/en/latest/manual.html#constructive-methods) or experiment yourself to see which attribute is appropriate to use here (e.g. `convex_hull`, `envelope`, and `minimum_rotated_rectangle` all create a new polygon encompassing the original).
 
 </div>
 
@@ -805,7 +811,7 @@ gent_region
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-gdf_gent = gdf_lambert[gdf_lambert.within(gent_region)].copy()
+gdf_gent = gdf_lambert[gdf_lambert.within(gent_region)]
 ```
 
 ```{code-cell} ipython3
@@ -831,7 +837,7 @@ len(gdf_gent)
 <details><summary>Hints</summary>
 
 * For using one of the columns of the GeoDataFrame to determine the fill color, use the `column=` keyword.
-* To add a background map, use the `contextily.add_basemap()` function. It takes the matplotlib `ax` to which to add a map as the first argument.
+* To add a background map, specify `tiles=True` in the `plot()` method, or use the `contextily.add_basemap()` function (this takes the matplotlib `ax` to which to add a map as the first argument).
 * Remember that, to use a contextily background, the data needs to be in Web Mercator ("EPSG:3857").
 
 </details>
@@ -863,7 +869,7 @@ Further zooming in on the city center, using a discrete color scheme and a diffe
 fig, ax = plt.subplots(figsize=(12, 12))
 ax = gdf_gent.to_crs(3857).plot(column="no2", ax=ax, scheme="NaturalBreaks", k=6, legend=True)
 ax.set(xlim=(408_000, 420_000), ylim=(6_625_000, 6_638_000))
-contextily.add_basemap(ax, source=contextily.providers.CartoDB.PositronNoLabels)
+contextily.add_basemap(ax, source=contextily.providers.Esri.WorldTopoMap)
 ax.set_axis_off()
 ```
 
@@ -981,91 +987,95 @@ streets["highway"][idx_closest]
 streets.loc[idx_closest, "highway"]
 ```
 
-We now want to repeat the above analysis for each measurement location. So let's start with writing a reusable function.
-
 <div class="alert alert-success">
 
 **EXERCISE**:
 
-* Define a function `closest_road_type` that accepts a single point and the streets dataframe, and returns the class of the closest street.
-* Check that the function works by using it on the `point` defined above.
+Specifically for the operation of finding the closest, or "nearest", geometry, we can make use of an optimized spatial index to speed up this query.
 
-As help, you can start from this skeleton:
-    
-```python
-def closest_road_type(point, streets):
-    # determine "highway" tag of the closest street
-    idx_closest = ...
-    ...
-    return ... 
-```
+GeoPandas uses a spatial index under the hood for various methods (e.g. `sjoin()`), but the object can also be accessed and used directly through the `.sindex` attribute.
+
+
+* Access the `.sindex` attribute of the streets geodataframe.
+* Use the `nearest()` method of the spatial index to find the closest geometry in the `streets` to the passed `point`.
+* Do you get the same index as with the manual (brute force) method above?
 
 </div>
 
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-def closest_road_type(point, streets):
-    """Type to the nearest road (OpenStreetMap)"""
-    dist = streets.distance(point)
-    idx_closest = dist.idxmin()
-    return streets.loc[idx_closest, "highway"]
+streets.sindex
 ```
 
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-closest_road_type(point, streets)
+streets.sindex.nearest(point)
 ```
 
-Now we can apply this function to each of the point locations. However, with this brute force method, applying it as is using `gdf_gent` and `streets` takes quite some time. We can speed up the distance calculation by reducing the number of linestrings in the `streets` dataframe to compare with.
+To get an idea of how much faster this is, let's time both options (not asked in exercise, but uncomment and run to see):
+
+```{code-cell} ipython3
+:tags: [nbtutor-solution]
+
+%timeit streets.distance(point).idxmin()
+```
+
+```{code-cell} ipython3
+:tags: [nbtutor-solution]
+
+%timeit streets.sindex.nearest(point)
+```
+
+While this are both small numbers and run almost instantly for this single point, it becomes a significant difference if called for even a thousand points.
+
+---
+
+We now want to repeat the above analysis for each measurement location. We could do this manually by writing a small function and calling this for each point (using `.apply()`). But specifically for the nearest operation, we can also use the spatial join functionality of GeoPandas.
+
++++
 
 <div class="alert alert-success">
 
 **EXERCISE**:
 
-* Create a `streets_unioned` dataframe with a single line per road type (a union of all lines per road type). Check the `dissolve()` method for this.
-* Repeat the `apply` call, but now on all points and using `streets_unioned` instead of `streets`.
-* Assign the result of the apply to a new columns "road_type".
-* Do a value counts of this new column.
-    
+* Use the `geopandas.sjoin_nearest()` function to perform a spatial join based on "nearest" geometries.
+* We want to add information to the points dataset (`gdf_gent`), thus this is the first argument.
+* The information we want to add is the type of the nearest street (the "highway") column.
+* Assign the result to a variable `gdf_gent2`
+* Do a value counts of the "highway" column in the result to see which road types occur how often.
+
+
 </div>
 
-+++
-
-When running this, you can see it already takes a bit of time, even for the first 20 rows:
-
 ```{code-cell} ipython3
-%time gdf_gent.geometry.head(20).apply(lambda point: closest_road_type(point, streets))
+:tags: [nbtutor-solution]
+
+gdf_gent2 = geopandas.sjoin_nearest(gdf_gent, streets[["geometry", "highway"]])
 ```
 
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-streets_unioned = streets.dissolve("highway").reset_index()
+gdf_gent2
 ```
 
 ```{code-cell} ipython3
-:tags: [nbtutor-solution]
-
-gdf_gent["road_type"] = gdf_gent.geometry.apply(lambda point: closest_road_type(point, streets_unioned))
+gdf_gent2["highway"].value_counts()
 ```
+
+The result has one row more than the original `gdf_gent` dataset. That means that for one point was equally close to two streets. Let's check those rows by verifying which rows (based on their "code") are duplicated:
 
 ```{code-cell} ipython3
-:tags: [nbtutor-solution]
-
-gdf_gent.head()
+gdf_gent2[gdf_gent2.duplicated(["code"], keep=False)]
 ```
+
+For this specific case, we can keep the first row and drop the duplicate second one:
 
 ```{code-cell} ipython3
-:tags: [nbtutor-solution]
-
-gdf_gent["road_type"].value_counts()
+gdf_gent2 = gdf_gent2.drop_duplicates(subset=["code"])
 ```
-
-**Note!** We have been using a brute-force search for the closest street by calculating for each point the distance to all streets. This is a good exercise to learn the syntax, but there are better methods for such "nearest" queries. See eg https://geopandas.org/en/latest/docs/user_guide/mergingdata.html#nearest-joins
-
-+++
 
 <div class="alert alert-success">
 
@@ -1073,14 +1083,14 @@ gdf_gent["road_type"].value_counts()
 
 There are some uncommon categories. For the remainder of this demo, let's group some related categories, and filter out some others.
     
-* Using the defined mapping, replace some values with "pedestrian" in the `"road_type"` column.
-* Using the defined subset of categories, create a subset of `gdf_gent` where the road type "is in" this subset of categories (look at the pandas `isin()` ([doc link](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.isin.html)) method). Call the result `subset`, and do again a value counts to check the result.
+* Using the defined mapping, replace some values with "pedestrian" in the `"highway"` column, and assign the result to a new `"road_type"` column.
+* Using the defined subset of categories, create a subset of `gdf_gent2` where the road type "is in" this subset of categories (look at the pandas `isin()` ([doc link](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.isin.html)) method). Call the result `subset`, and do again a value counts to check the result.
     
 <details><summary>Hints</summary>
 
 * The `replace()` method can be called on a column. Pass a dictionary to this method, and the keys of the dictionary present in the column will be replaces with the corresponding values defined in the dictionary.
 * The `Series.isin()` method accepts a list of values, and will return a boolean Series indicating for each element of the original Series whether it is present in the list of values or not. 
-* The boolean Series can then be used to filter the original `gdf_gent` dataframe using boolean indexing.
+* The boolean Series can then be used to filter the original `gdf_gent2` dataframe using boolean indexing.
 </details>
 
 </div>
@@ -1100,7 +1110,7 @@ mapping = {
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-gdf_gent["road_type"] = gdf_gent["road_type"].replace(mapping)
+gdf_gent2["road_type"] = gdf_gent2["highway"].replace(mapping)
 ```
 
 Filter categories:
@@ -1112,7 +1122,7 @@ categories = ["primary", "secondary", "tertiary", "residential", "pedestrian"]
 ```{code-cell} ipython3
 :tags: [nbtutor-solution]
 
-subset = gdf_gent[gdf_gent["road_type"].isin(categories)]
+subset = gdf_gent2[gdf_gent2["road_type"].isin(categories)]
 ```
 
 ```{code-cell} ipython3
@@ -1156,3 +1166,48 @@ seaborn.boxplot(x="road_type", y="no2", data=subset, order=categories)
 ```
 
 This analysis confirms that the NO2 concentration is clearly related to traffic.
+
++++
+
+---
+
+For finding the road type of the closest street, we could in this case make use of the existing `sjoin_nearest()` function. However, for custom queries there might not always be an exact function for this in geopandas. Assume we wanted to do this manually, we could first define a reusable function with the query logic:
+
+```{code-cell} ipython3
+def closest_road_type(point: shapely.Point, streets: geopandas.GeoDataFrame):
+    """For a single point, return the type of the nearest road (OpenStreetMap)"""
+    dist = streets.distance(point)
+    idx_closest = dist.idxmin()
+    return streets.loc[idx_closest, "highway"]
+```
+
+```{code-cell} ipython3
+closest_road_type(point, streets)
+```
+
+Now we can apply this function to each of the point locations. However, with this brute force method, applying it as is using `gdf_gent` and `streets` takes quite some time. 
+When running this, you can see it already takes a bit of time, even for the first 20 rows:
+
+```{code-cell} ipython3
+%time gdf_gent.geometry.head(20).apply(lambda point: closest_road_type(point, streets))
+```
+
+We can speed up the distance calculation by reducing the number of linestrings in the `streets` dataframe to compare with.
+
+The next code creates a `streets_unioned` dataframe with a single line per road type (a union of all lines per road type) using the `dissolve()` method:
+
+```{code-cell} ipython3
+streets_unioned = streets.dissolve("highway").reset_index()
+```
+
+Now we can apply our function to all points:
+
+```{code-cell} ipython3
+gdf_gent["road_type"] = gdf_gent.geometry.apply(lambda point: closest_road_type(point, streets_unioned))
+```
+
+```{code-cell} ipython3
+gdf_gent["road_type"].value_counts()
+```
+
+This now runs in about a second, but even with the optimizations, this is still around 100x slower than the `sjoin_nearest` we used above.
