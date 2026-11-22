@@ -471,7 +471,7 @@ joined['continent'].value_counts()
 
 ## Let's practice!
 
-We will again use the Paris datasets to do some exercises. Let's start importing them:
+We will again use the Paris datasets to do some exercises. Let's start importing them, and directly converting to a local projected CRS:
 
 ```{code-cell} ipython3
 districts = geopandas.read_file("data/paris_districts.geojson").to_crs(epsg=2154)
