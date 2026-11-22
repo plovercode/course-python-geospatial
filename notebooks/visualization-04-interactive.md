@@ -25,7 +25,7 @@ kernelspec:
 
 In the course, we used the Matplotlib library for all visualizations. This is the library that is most widely used and integrated into the other packages (e.g. the plotting functionality of pandas, geopandas, xarray, rasterio, etc all use matplotlib), and is still the "go to" library for making high-quality, publication graphics. 
 
-There are, however, a bunch of alternatives to matplotlib, mainly focusing on providing more interactivity and based on web (javascript) tools. To many such packages exist to cover in this course, but we list here a few that can handle (to some extent) geospatial data:
+There are, however, a bunch of alternatives to matplotlib, mainly focusing on providing more interactivity and based on web (javascript) tools. Too many such packages exist to cover in this course, but we list here a few that can handle (to some extent) geospatial data:
 
 - Bokeh: https://bokeh.pydata.org/en/latest/docs/gallery/texas.html
 - GeoViews (other interface to Bokeh/matplotlib): http://geo.holoviews.org

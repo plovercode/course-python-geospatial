@@ -93,10 +93,23 @@ ax = countries.plot(figsize=(15, 6), column='gdp_per_cap', legend=True)
 ax.set_axis_off()
 ```
 
+```{code-cell} ipython3
+# use the "compressed" layout of matplotlib to get better default sizing of the colorbar
+fig, ax = plt.subplots(figsize=(15, 6), layout="compressed")
+ax = countries.plot(ax=ax, column='gdp_per_cap', legend=True)
+ax.set_axis_off()
+```
+
 Using a classification scheme to bin the values (using [`mapclassify`](https://pysal.org/mapclassify/)):
 
 ```{code-cell} ipython3
 ax = countries.plot(figsize=(15, 6), column='gdp_per_cap', scheme='quantiles', legend=True)
+ax.set_axis_off()
+```
+
+```{code-cell} ipython3
+# same, but keeping a colorbar for the legend
+ax = countries.plot(figsize=(15, 6), column='gdp_per_cap', scheme='quantiles', legend=True, legend_kwds={"colorbar": True})
 ax.set_axis_off()
 ```
 
@@ -121,9 +134,9 @@ ax.set(xlim=(-20, 60), ylim=(-40, 40))
 
 +++
 
-The contextily package allow to easily add a web-tile based background (basemap) to your GeoPandas plots.
+The [contextily](https://contextily.readthedocs.io/en/latest/) package allows to easily add a web-tile based background (basemap) to your GeoPandas plots.
 
-Currently, the only requirement is that your data is already in the WebMercator projection (EPSG:3857).
+Starting with `geopandas` >= 1.2, this is available as a `tiles=True` shortcut in the `plot()` method:
 
 ```{code-cell} ipython3
 # selecting the cities in Europe
@@ -131,12 +144,20 @@ cities_europe = cities[cities.within(countries[countries['continent'] == 'Europe
 ```
 
 ```{code-cell} ipython3
-# converting to WebMercator
-cities_europe2 = cities_europe.to_crs(epsg=3857)
+cities_europe.plot()
 ```
 
 ```{code-cell} ipython3
-ax = cities_europe2.plot()
+cities_europe.plot(figsize=(10, 6), tiles=True)
+```
+
+The tiles are in the WebMercator projection (EPSG:3857), and thus to avoid warping of the tile images, it can be advisable to reproject your data to WebMercator.
+
+The following example also shows how to add the basemap yourself using `contextily`:
+
+```{code-cell} ipython3
+# converting to WebMercator
+cities_europe2 = cities_europe.to_crs(epsg=3857)
 ```
 
 ```{code-cell} ipython3
@@ -154,13 +175,18 @@ contextily.add_basemap(ax)
 ```
 
 ```{code-cell} ipython3
+# specifying a different tile provider\
 ax = cities_europe2.plot(figsize=(10, 6))
 contextily.add_basemap(ax, source=contextily.providers.NASAGIBS.BlueMarble)
 ```
 
+See the [contextily documentation](https://contextily.readthedocs.io/en/latest/index.html) for more information how to customize this (e.g. the zoom level of the tiles), and the [xyzservices documentation](https://xyzservices.readthedocs.io/en/stable/index.html) for an overview of all available (built-in) tile providers.
+
++++
+
 ## Projection-aware maps with Cartopy
 
-Cartopy is the base matplotlib cartographic library, and it is used by `geoplot` under the hood to provide projection-awareness (http://scitools.org.uk/cartopy/docs/latest/index.html).
+Cartopy is the base matplotlib cartographic library, and it can be used to create projection-aware maps (http://scitools.org.uk/cartopy/docs/latest/index.html).
 
 The following example is taken from the docs: http://geopandas.readthedocs.io/en/latest/gallery/cartopy_convert.html#sphx-glr-gallery-cartopy-convert-py
 
@@ -169,12 +195,15 @@ from cartopy import crs as ccrs
 ```
 
 ```{code-cell} ipython3
+crs.to_wkt()
+```
+
+```{code-cell} ipython3
 # Define the CartoPy CRS object.
 crs = ccrs.AlbersEqualArea()
 
-# This can be converted into a `proj4` string/dict compatible with GeoPandas
-crs_proj4 = crs.proj4_init
-countries_ae = countries.to_crs(crs_proj4)
+# This crs object is compatible with GeoPandas, and will be recognized by its to_crs() method
+countries_ae = countries.to_crs(crs)
 ```
 
 ```{code-cell} ipython3
@@ -186,6 +215,7 @@ countries_ae.plot()
 # Here's what the plot looks like when plotting with cartopy
 fig, ax = plt.subplots(subplot_kw={'projection': crs})
 ax.add_geometries(countries_ae['geometry'], crs=crs)
+ax.gridlines()
 ```
 
 ```{code-cell} ipython3

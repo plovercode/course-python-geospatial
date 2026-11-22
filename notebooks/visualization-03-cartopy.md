@@ -157,12 +157,12 @@ Let's take a look at:
 
 ```{code-cell} ipython3
 projections = [ccrs.PlateCarree(),
-               ccrs.Robinson(),
                ccrs.Mercator(),
                ccrs.Orthographic(),
-               ccrs.InterruptedGoodeHomolosine()
+               ccrs.InterruptedGoodeHomolosine(),
+               ccrs.Robinson(),
+               ccrs.EqualEarth(),
               ]
-
 
 for proj in projections:
     fig, ax = plt.subplots(subplot_kw={'projection': proj})
@@ -249,7 +249,7 @@ proj = ccrs.AlbersEqualArea()
 
 fig, ax = plt.subplots(figsize=(10, 10), subplot_kw={'projection': proj})
 # Reproject the cities dataset to the corresponding CRS of the cartopy projection
-cities_albers = cities.to_crs(proj.proj4_init)
+cities_albers = cities.to_crs(proj)
 cities_albers.plot(ax=ax)
 ax.coastlines()
 ax.set_global()
